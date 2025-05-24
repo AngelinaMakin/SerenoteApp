@@ -1,4 +1,4 @@
 ## Kontributor
 
 - Angelina Makin  
-- Farhan (Kontributor)
+- Agvina Maharani
