@@ -11,10 +11,9 @@
 - 🕒 Riwayat terakhir diedit
 - 🌙 Dark Mode (opsional)
 
-## 📸 Tampilan Aplikasi
+## 🚀 Teknologi yang Digunakan
 
-![Tampilan Utama](screenshot1.png)  
-*Halaman utama menampilkan daftar catatan*
-
-![Tampilan Tambah Catatan](screenshot2.png)  
-*Form untuk menambahkan catatan baru*
+- Kotlin / Java
+- Android Studio
+- Room Database
+- Material Components
