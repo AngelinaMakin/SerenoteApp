@@ -17,3 +17,9 @@
 - Android Studio
 - Room Database
 - Material Components
+
+## 📥 Cara Install
+
+1. Clone repository ini:
+   ```bash
+   git clone https://github.com/AngelinaMakin/SerenoteApp.git
