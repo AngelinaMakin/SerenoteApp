@@ -10,3 +10,11 @@
 - 🔍 Fitur pencarian catatan
 - 🕒 Riwayat terakhir diedit
 - 🌙 Dark Mode (opsional)
+
+## 📸 Tampilan Aplikasi
+
+![Tampilan Utama](screenshot1.png)  
+*Halaman utama menampilkan daftar catatan*
+
+![Tampilan Tambah Catatan](screenshot2.png)  
+*Form untuk menambahkan catatan baru*
