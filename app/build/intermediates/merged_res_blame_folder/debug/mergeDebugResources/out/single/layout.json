@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.example.serenoteapp-mergeDebugResources-39:/layout/item_note.xml",
+        "source": "com.example.serenoteapp-main-42:/layout/item_note.xml"
+    },
+    {
+        "merged": "C:\\Users\\yulia\\.gradle\\daemon\\8.10\\com.example.serenoteapp-mergeDebugResources-39:\\layout\\activity_login.xml",
+        "source": "C:\\Users\\yulia\\.gradle\\daemon\\8.10\\com.example.serenoteapp-main-42:\\layout\\activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\yulia\\.gradle\\daemon\\8.10\\com.example.serenoteapp-mergeDebugResources-39:\\layout\\activity_main.xml",
+        "source": "C:\\Users\\yulia\\.gradle\\daemon\\8.10\\com.example.serenoteapp-main-42:\\layout\\activity_main.xml"
+    }
+]

@@ -1,0 +1,8 @@
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\Note.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\NoteDatabase.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\NoteRepository.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\NoteDao.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\NoteAdapter.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\LoginActivity.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\NoteViewModel.kt
+C:\Users\yulia\SerenoteApp\app\src\main\java\com\uti\app\MainActivity.kt
