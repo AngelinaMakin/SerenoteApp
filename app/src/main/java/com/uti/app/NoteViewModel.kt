@@ -1,32 +1,37 @@
-package com.yourapp.serenoteapp.viewmodel
+package com.example.serenoteapp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.yourapp.serenoteapp.data.Note
-import com.yourapp.serenoteapp.data.NoteDatabase
-import com.yourapp.serenoteapp.data.NoteRepository
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.serenoteapp.data.Note
+import com.example.serenoteapp.data.NoteRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class NoteViewModel(application: Application) : AndroidViewModel(application) {
+class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
-    private val repository: NoteRepository
-    val allNotes: LiveData<List<Note>>
+    private val _allNotes = MutableStateFlow<List<Note>>(emptyList())
+    val allNotes: StateFlow<List<Note>> = _allNotes.asStateFlow()
 
     init {
-        val noteDao = NoteDatabase.getDatabase(application).noteDao()
-        repository = NoteRepository(noteDao)
-        allNotes = repository.allNotes
+        viewModelScope.launch {
+            repository.getAllNotes().collectLatest { notes ->
+                _allNotes.value = notes
+            }
+        }
     }
 
-    fun insert(note: Note) = viewModelScope.launch {
-        repository.insert(note)
+    fun insertNote(note: Note) = viewModelScope.launch {
+        repository.insertNote(note)
     }
 
-    fun update(note: Note) = viewModelScope.launch {
-        repository.update(note)
+    fun updateNote(note: Note) = viewModelScope.launch {
+        repository.updateNote(note)
     }
 
-    fun delete(note: Note) = viewModelScope.launch {
-        repository.delete(note)
+    fun deleteNote(note: Note) = viewModelScope.launch {
+        repository.deleteNote(note)
     }
 }
