@@ -28,7 +28,7 @@ android {
     buildFeatures {
         viewBinding true
     }
-//Tambah dependency ViewBindin
+//Tambah dependency ViewBinding
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
