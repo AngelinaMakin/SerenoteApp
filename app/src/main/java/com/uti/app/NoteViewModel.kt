@@ -1,13 +1,14 @@
-package com.example.serenoteapp.viewmodel
+package com.yourapp.serenoteapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.serenoteapp.data.NoteDatabase
-import com.example.serenoteapp.model.Note
-import com.example.serenoteapp.repository.NoteRepository
+import com.yourapp.serenoteapp.data.Note
+import com.yourapp.serenoteapp.data.NoteDatabase
+import com.yourapp.serenoteapp.data.NoteRepository
 import kotlinx.coroutines.launch
 
 class NoteViewModel(application: Application) : AndroidViewModel(application) {
+
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
 
