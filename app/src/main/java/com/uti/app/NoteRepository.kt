@@ -1,20 +1,18 @@
-package com.yourapp.serenoteapp.data
-
-import androidx.lifecycle.LiveData
+package com.example.serenoteapp.data
 
 class NoteRepository(private val noteDao: NoteDao) {
 
-    val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
-
-    suspend fun insert(note: Note) {
-        noteDao.insert(note)
+    suspend fun insertNote(note: Note) {
+        noteDao.insertNote(note)
     }
 
-    suspend fun update(note: Note) {
-        noteDao.update(note)
+    fun getAllNotes() = noteDao.getAllNotes()
+
+    suspend fun updateNote(note: Note) {
+        noteDao.updateNote(note)
     }
 
-    suspend fun delete(note: Note) {
-        noteDao.delete(note)
+    suspend fun deleteNote(note: Note) {
+        noteDao.deleteNote(note)
     }
 }

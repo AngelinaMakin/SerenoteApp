@@ -1,3 +1,5 @@
+package com.example.serenoteapp.data
+
 import androidx.lifecycle.LiveData
 import androidx.room.*
 
@@ -5,14 +7,14 @@ import androidx.room.*
 interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: Note)
+    suspend fun insertNote(note: Note)
+
+    @Query("SELECT * FROM notes ORDER BY timestamp DESC")
+    fun getAllNotes(): LiveData<List<Note>>
 
     @Update
-    suspend fun update(note: Note)
+    suspend fun updateNote(note: Note)
 
     @Delete
-    suspend fun delete(note: Note)
-
-    @Query("SELECT * FROM note_table ORDER BY timestamp DESC")
-    fun getAllNotes(): LiveData<List<Note>>
+    suspend fun deleteNote(note: Note)
 }
