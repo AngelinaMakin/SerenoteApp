@@ -1,7 +1,7 @@
 package com.example.serenoteapp.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
@@ -10,7 +10,7 @@ interface NoteDao {
     suspend fun insertNote(note: Note)
 
     @Query("SELECT * FROM notes ORDER BY timestamp DESC")
-    fun getAllNotes(): LiveData<List<Note>>
+    fun getAllNotes(): Flow<List<Note>>  // Ubah jadi Flow
 
     @Update
     suspend fun updateNote(note: Note)
