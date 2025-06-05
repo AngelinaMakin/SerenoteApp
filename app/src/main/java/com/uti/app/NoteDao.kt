@@ -2,7 +2,6 @@ package com.example.serenoteapp.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.serenoteapp.model.Note
 
 @Dao
 interface NoteDao {
