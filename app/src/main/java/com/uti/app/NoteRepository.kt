@@ -1,8 +1,9 @@
-package com.example.serenoteapp.data
+package com.yourapp.serenoteapp.data
 
 import androidx.lifecycle.LiveData
 
 class NoteRepository(private val noteDao: NoteDao) {
+
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
 
     suspend fun insert(note: Note) {
