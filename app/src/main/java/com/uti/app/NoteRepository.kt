@@ -1,18 +1,20 @@
 package com.example.serenoteapp.data
 
-class NoteRepository(private val noteDao: NoteDao) {
+import kotlinx.coroutines.flow.Flow
 
-    suspend fun insertNote(note: Note) {
+class NoteRepository(private val noteDao: NoteDao) : INoteRepository {
+
+    override suspend fun insertNote(note: Note) {
         noteDao.insertNote(note)
     }
 
-    fun getAllNotes() = noteDao.getAllNotes()
+    override fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
 
-    suspend fun updateNote(note: Note) {
+    override suspend fun updateNote(note: Note) {
         noteDao.updateNote(note)
     }
 
-    suspend fun deleteNote(note: Note) {
+    override suspend fun deleteNote(note: Note) {
         noteDao.deleteNote(note)
     }
 }
