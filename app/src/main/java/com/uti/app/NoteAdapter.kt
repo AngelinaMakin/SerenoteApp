@@ -19,14 +19,9 @@ class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val currentNote = noteList[position]
-        // TODO: Isi binding dengan data dari currentNote, contoh:
-        // holder.binding.titleTextView.text = currentNote.title
+        holder.binding.tvTitle.text = currentNote.title
+        holder.binding.tvContent.text = currentNote.content
     }
 
     override fun getItemCount(): Int = noteList.size
-
-    fun setNotes(notes: List<Note>) {
-        noteList = notes
-        notifyDataSetChanged()
-    }
 }
