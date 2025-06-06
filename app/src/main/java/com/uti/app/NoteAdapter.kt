@@ -1,17 +1,13 @@
-package com.example.serenoteapp
+// NoteAdapter.kt
+package com.example.serenoteapp.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.databinding.ItemNoteBinding
-import com.example.serenoteapp.model.Note  //
 
-
-class NoteAdapter(
-    private var notes: List<Note>,
-    private val onItemClick: (Note) -> Unit,
-    private val onDeleteClick: (Note) -> Unit
-) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
+class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
     inner class NoteViewHolder(val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -21,19 +17,8 @@ class NoteAdapter(
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        val note = notes[position]
-        holder.binding.apply {
-            textTitle.text = note.title
-            textContent.text = note.content
-            root.setOnClickListener { onItemClick(note) }
-            btnDelete.setOnClickListener { onDeleteClick(note) }
-        }
+        // belum ada data list
     }
 
-    override fun getItemCount(): Int = notes.size
-
-    fun updateNotes(newNotes: List<Note>) {
-        notes = newNotes
-        notifyDataSetChanged()
-    }
+    override fun getItemCount(): Int = 0 // belum ada data
 }
