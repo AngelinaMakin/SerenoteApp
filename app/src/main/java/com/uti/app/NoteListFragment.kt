@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.serenoteapp.R
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteListBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
 
 class NoteListFragment : Fragment() {
 
@@ -31,15 +35,25 @@ class NoteListFragment : Fragment() {
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater, container, false)
 
-        noteAdapter = NoteAdapter() // buat adapter
+        noteAdapter = NoteAdapter { note ->
+            // Bisa isi aksi kalau note diklik
+        }
 
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
         }
-        noteViewModel.notes.observe(viewLifecycleOwner) { notes ->
-            noteAdapter.setNotes(notes)
+
+        lifecycleScope.launchWhenStarted {
+            noteViewModel.allNotes.collectLatest { notes ->
+                noteAdapter.setNotes(notes)
+            }
         }
+
+        binding.fabAdd.setOnClickListener {
+            findNavController().navigate(R.id.action_noteListFragment_to_noteAddFragment)
+        }
+
         return binding.root
     }
 }
