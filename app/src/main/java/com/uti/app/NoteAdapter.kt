@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.databinding.ItemNoteBinding
 
-class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
+class NoteAdapter(private val onItemClick: (Note) -> Unit) :
+    RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
     private var noteList = listOf<Note>()
 
@@ -19,8 +20,14 @@ class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val currentNote = noteList[position]
-        holder.binding.tvTitle.text = currentNote.title
-        holder.binding.tvContent.text = currentNote.content
+        holder.binding.apply {
+            tvTitle.text = currentNote.title
+            tvContent.text = currentNote.content
+
+            root.setOnClickListener {
+                onItemClick(currentNote)
+            }
+        }
     }
 
     override fun getItemCount(): Int = noteList.size
