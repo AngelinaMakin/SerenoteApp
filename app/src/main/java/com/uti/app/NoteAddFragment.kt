@@ -11,29 +11,45 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteAddBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
+import androidx.navigation.fragment.findNavController
+import com.example.serenoteapp.data.Note
+
 
 class NoteAddFragment : Fragment() {
 
     private var _binding: FragmentNoteAddBinding? = null
     private val binding get() = _binding!!
 
-   // Ditambahkan: Inisialisasi ViewModel
+    // ✅ TAMBAHAN: ViewModel
     private val noteViewModel: NoteViewModel by viewModels {
         NoteViewModelFactory(
             NoteRepository(NoteDatabase.getDatabase(requireContext()).noteDao())
         )
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentNoteAddBinding.inflate(inflater, container, false)
+
 
         binding.btnSave.setOnClickListener {
             val title = binding.etTitle.text.toString()
             val content = binding.etContent.text.toString()
+
+            if (title.isNotBlank() && content.isNotBlank()) {
+                val note = Note(
+                    title = title,
+                    content = content,
+                    timestamp = System.currentTimeMillis()
+                )
+                noteViewModel.insertNote(note)
+                findNavController().navigateUp()
+            }
+        }
+
+
 
         return binding.root
     }
