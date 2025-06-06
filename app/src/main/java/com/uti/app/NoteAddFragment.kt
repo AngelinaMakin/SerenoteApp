@@ -30,6 +30,11 @@ class NoteAddFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNoteAddBinding.inflate(inflater, container, false)
+
+        binding.btnSave.setOnClickListener {
+            val title = binding.etTitle.text.toString()
+            val content = binding.etContent.text.toString()
+
         return binding.root
     }
 
