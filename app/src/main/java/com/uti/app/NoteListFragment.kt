@@ -37,6 +37,9 @@ class NoteListFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
         }
+        noteViewModel.notes.observe(viewLifecycleOwner) { notes ->
+            noteAdapter.setNotes(notes)
+        }
         return binding.root
     }
 }
