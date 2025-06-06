@@ -30,6 +30,13 @@ class NoteListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater, container, false)
+
+        noteAdapter = NoteAdapter() // buat adapter
+
+        binding.rvNotes.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = noteAdapter
+        }
         return binding.root
     }
 }
