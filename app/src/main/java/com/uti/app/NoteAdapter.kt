@@ -23,6 +23,9 @@ class NoteAdapter(private val onItemClick: (Note) -> Unit) :
         holder.binding.apply {
             tvTitle.text = currentNote.title
             tvContent.text = currentNote.content
+            root.setOnClickListener {
+                onItemClick(currentNote)
+            }
         }
     }
 
