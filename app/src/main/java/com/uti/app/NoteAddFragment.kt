@@ -20,7 +20,7 @@ class NoteAddFragment : Fragment() {
     private var _binding: FragmentNoteAddBinding? = null
     private val binding get() = _binding!!
 
-    // ✅ TAMBAHAN: ViewModel
+
     private val noteViewModel: NoteViewModel by viewModels {
         NoteViewModelFactory(
             NoteRepository(NoteDatabase.getDatabase(requireContext()).noteDao())
@@ -32,6 +32,8 @@ class NoteAddFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentNoteAddBinding.inflate(inflater, container, false)
+
+        val noteArg = arguments?.let { NoteAddFragmentArgs.fromBundle(it).note }
 
 
         binding.btnSave.setOnClickListener {
