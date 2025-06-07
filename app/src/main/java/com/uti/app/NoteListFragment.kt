@@ -35,8 +35,10 @@ class NoteListFragment : Fragment() {
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater, container, false)
 
-        noteAdapter = NoteAdapter { note ->
-            // Bisa isi aksi kalau note diklik
+        noteAdapter = NoteAdapter { selectedNote ->
+            val action = NoteListFragmentDirections
+                .actionNoteListFragmentToNoteAddFragment(note = selectedNote)
+            findNavController().navigate(action)
         }
 
         binding.rvNotes.apply {
