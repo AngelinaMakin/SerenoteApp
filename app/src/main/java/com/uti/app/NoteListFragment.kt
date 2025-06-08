@@ -35,11 +35,15 @@ class NoteListFragment : Fragment() {
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater, container, false)
 
-        noteAdapter = NoteAdapter { selectedNote ->
-            val action = NoteListFragmentDirections
-                .actionNoteListFragmentToNoteAddFragment(note = selectedNote)
-            findNavController().navigate(action)
-        }
+        noteAdapter = NoteAdapter(
+            onItemClick = { selectedNote ->
+                val action = NoteListFragmentDirections.actionNoteListFragmentToNoteAddFragment(selectedNote)
+                findNavController().navigate(action)
+            },
+            onDeleteClick = { selectedNote ->
+                noteViewModel.deleteNote(selectedNote)
+            }
+        )
 
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
