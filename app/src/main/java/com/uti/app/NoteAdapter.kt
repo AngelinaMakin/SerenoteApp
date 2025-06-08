@@ -13,6 +13,8 @@ class NoteAdapter(
     private val onDeleteClick: (Note) -> Unit
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
 
+    private var fullList = listOf<Note>()
+
     inner class NoteViewHolder(val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -33,6 +35,22 @@ class NoteAdapter(
                 onDeleteClick(currentNote)
             }
         }
+    }
+
+    fun setData(newList: List<Note>) {
+        submitList(newList)
+    }
+
+    fun filter(query: String) {
+        val filtered = if (query.isEmpty()) {
+            fullList
+        } else {
+            fullList.filter {
+                it.title.contains(query, ignoreCase = true) ||
+                        it.content.contains(query, ignoreCase = true)
+            }
+        }
+        submitList(filtered)
     }
 
     companion object {
