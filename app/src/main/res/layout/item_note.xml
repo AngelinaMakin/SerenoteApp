@@ -46,6 +46,6 @@
             android:contentDescription="@string/delete_note"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:tint="@android:color/darker_gray" />
+            android:tint="?attr/colorControlNormal" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
