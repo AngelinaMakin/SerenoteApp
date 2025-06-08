@@ -6,8 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.databinding.ItemNoteBinding
 
-class NoteAdapter(private val onItemClick: (Note) -> Unit) :
-    RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
+class NoteAdapter(
+    private val onItemClick: (Note) -> Unit,
+    private val onDeleteClick: (Note) -> Unit
+) :RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
     private var noteList = listOf<Note>()
 
@@ -23,8 +25,12 @@ class NoteAdapter(private val onItemClick: (Note) -> Unit) :
         holder.binding.apply {
             tvTitle.text = currentNote.title
             tvContent.text = currentNote.content
+
             root.setOnClickListener {
                 onItemClick(currentNote)
+            }
+            btnDelete.setOnClickListener {
+                onDeleteClick(currentNote)
             }
         }
     }
