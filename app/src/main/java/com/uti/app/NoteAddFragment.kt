@@ -35,6 +35,11 @@ class NoteAddFragment : Fragment() {
 
         val noteArg = arguments?.let { NoteAddFragmentArgs.fromBundle(it).note }
 
+        noteArg?.let { note ->
+            binding.etTitle.setText(note.title)
+            binding.etContent.setText(note.content)
+        }
+
 
         binding.btnSave.setOnClickListener {
             val title = binding.etTitle.text.toString()
