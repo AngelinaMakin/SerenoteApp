@@ -17,6 +17,8 @@ import com.example.serenoteapp.databinding.FragmentNoteListBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
+import androidx.recyclerview.widget.DividerItemDecoration
+
 
 class NoteListFragment : Fragment() {
 
@@ -48,6 +50,10 @@ class NoteListFragment : Fragment() {
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
+
+            addItemDecoration(
+                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+            )
         }
 
 
