@@ -45,16 +45,25 @@ class NoteAddFragment : Fragment() {
             val title = binding.etTitle.text.toString()
             val content = binding.etContent.text.toString()
 
-            if (title.isNotBlank() && content.isNotBlank()) {
-                val note = Note(
+            val updatedNote = noteArg?.copy(
+                title = title,
+                content = content
+            )
+
+            if (updatedNote != null) {
+                noteViewModel.updateNote(updatedNote)
+            } else {
+                val newNote = Note(
                     title = title,
                     content = content,
                     timestamp = System.currentTimeMillis()
                 )
-                noteViewModel.insertNote(note)
-                findNavController().navigateUp()
+                noteViewModel.insertNote(newNote)
             }
+
+            findNavController().popBackStack()
         }
+
 
 
 
@@ -66,3 +75,4 @@ class NoteAddFragment : Fragment() {
         _binding = null
     }
 }
+
