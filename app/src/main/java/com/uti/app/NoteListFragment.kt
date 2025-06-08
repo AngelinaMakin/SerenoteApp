@@ -54,7 +54,7 @@ class NoteListFragment : Fragment() {
         //Observe StateFlow catatan dan tampilkan dengan NoteAdapter
         lifecycleScope.launchWhenStarted {
             noteViewModel.allNotes.collectLatest { notes ->
-                noteAdapter.setNotes(notes)
+                noteAdapter.submitList(notes)
             }
         }
 
