@@ -65,7 +65,8 @@ class NoteListFragment : Fragment() {
         }
 
         binding.fabAdd.setOnClickListener {
-            findNavController().navigate(R.id.action_noteListFragment_to_noteAddFragment)
+            val action = NoteListFragmentDirections.actionNoteListFragmentToNoteAddFragment(null)
+            findNavController().navigate(action)
         }
 
         return binding.root
