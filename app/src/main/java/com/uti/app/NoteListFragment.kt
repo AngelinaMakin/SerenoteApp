@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -56,12 +57,23 @@ class NoteListFragment : Fragment() {
             )
         }
 
-
-        //Observe StateFlow catatan dan tampilkan dengan NoteAdapter
-        lifecycleScope.launchWhenStarted {
-            noteViewModel.allNotes.collectLatest { notes ->
-                noteAdapter.submitList(notes)
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { noteAdapter.filter(it) }
+                return true
             }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let { noteAdapter.filter(it) }
+                return true
+            }
+        })
+
+            //Observe StateFlow catatan dan tampilkan dengan NoteAdapter
+        lifecycleScope.launchWhenStarted {
+                noteViewModel.allNotes.collectLatest { notes ->
+                    noteAdapter.setData(notes)
+                }
         }
 
         binding.fabAdd.setOnClickListener {
