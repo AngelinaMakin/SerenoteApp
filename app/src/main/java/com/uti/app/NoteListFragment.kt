@@ -23,7 +23,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 
 class NoteListFragment : Fragment() {
 
-    private lateinit var binding: FragmentNoteListBinding
+    private var _binding: FragmentNoteListBinding? = null
+    private val binding get() = _binding!!
     private lateinit var noteAdapter: NoteAdapter
 
     private val noteViewModel: NoteViewModel by viewModels {
@@ -36,7 +37,8 @@ class NoteListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentNoteListBinding.inflate(inflater, container, false)
+        _binding = FragmentNoteListBinding.inflate(inflater, container, false)
+
 
         noteAdapter = NoteAdapter(
             onItemClick = { selectedNote ->
@@ -85,6 +87,10 @@ class NoteListFragment : Fragment() {
 
         return binding.root
     }
-}
 
-//updatean seluruh
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+
+        }
+}
