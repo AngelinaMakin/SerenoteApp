@@ -38,6 +38,7 @@ class NoteAdapter(
     }
 
     fun setData(newList: List<Note>) {
+        fullList = newList
         submitList(newList)
     }
 
