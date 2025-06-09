@@ -71,9 +71,11 @@ class NoteListFragment : Fragment() {
 
             //Observe StateFlow catatan dan tampilkan dengan NoteAdapter
         lifecycleScope.launchWhenStarted {
-                noteViewModel.allNotes.collectLatest { notes ->
-                    noteAdapter.setData(notes)
-                }
+            noteViewModel.allNotes.collectLatest { notes ->
+                binding.progressBar.visibility = View.GONE //tampilkan progressbar
+                noteAdapter.setData(notes)
+            }
+
         }
 
         binding.fabAdd.setOnClickListener {
