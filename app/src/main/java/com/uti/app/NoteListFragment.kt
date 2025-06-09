@@ -76,8 +76,14 @@ class NoteListFragment : Fragment() {
             noteViewModel.allNotes.collectLatest { notes ->
                 binding.progressBar.visibility = View.GONE //tampilkan progressbar
                 noteAdapter.setData(notes)
-            }
 
+                if (notes.isEmpty()) {
+                    binding.tvEmptyState.visibility = View.VISIBLE
+                } else {
+                    binding.tvEmptyState.visibility = View.GONE
+                }
+
+            }
         }
 
         binding.fabAdd.setOnClickListener {
