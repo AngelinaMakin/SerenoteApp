@@ -19,6 +19,8 @@ import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import androidx.recyclerview.widget.DividerItemDecoration
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
 
 
 class NoteListFragment : Fragment() {
@@ -62,6 +64,10 @@ class NoteListFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let { noteAdapter.filter(it) }
+
+                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding.searchView.windowToken, 0)
+
                 return true
             }
 
