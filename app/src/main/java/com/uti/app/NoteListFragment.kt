@@ -108,4 +108,10 @@ class NoteListFragment : Fragment() {
         _binding = null
 
         }
+
+    private fun resetFilter() {
+        noteAdapter.filter("")
+        binding.searchView.setQuery("", false)
+    }
+
 }
