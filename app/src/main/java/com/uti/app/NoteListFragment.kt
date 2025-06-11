@@ -72,7 +72,10 @@ class NoteListFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { noteAdapter.filter(it) }
+                newText?.let { noteAdapter.filter(it)
+                    binding.tvEmptyState.visibility = if (noteAdapter.itemCount == 0) View.VISIBLE else View.GONE
+                }
+
                 return true
             }
         })
