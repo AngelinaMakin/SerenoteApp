@@ -15,7 +15,25 @@ class NoteAdapter(
 
     private var fullList = listOf<Note>()
 
-    inner class NoteViewHolder(val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class NoteViewHolder(private val binding: ItemNoteBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(note: Note) {
+            binding.tvTitle.text = note.title
+            binding.tvContent.text = note.content
+
+            binding.root.setOnClickListener {
+                onItemClick(note)
+            }
+            binding.btnDelete.setOnClickListener {
+                onDeleteClick(note)
+            }
+
+            // Animasi fade-in
+            itemView.alpha = 0f
+            itemView.animate().alpha(1f).setDuration(300).start()
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -23,18 +41,7 @@ class NoteAdapter(
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        val currentNote = getItem(position)
-        holder.binding.apply {
-            tvTitle.text = currentNote.title
-            tvContent.text = currentNote.content
-
-            root.setOnClickListener {
-                onItemClick(currentNote)
-            }
-            btnDelete.setOnClickListener {
-                onDeleteClick(currentNote)
-            }
-        }
+        holder.bind(getItem(position))
     }
 
     fun setData(newList: List<Note>) {
