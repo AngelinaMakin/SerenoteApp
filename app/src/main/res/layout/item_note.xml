@@ -14,29 +14,39 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
-    <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Judul"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvContent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Isi catatan"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Judul"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Isi catatan"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+            <!-- Tambahan tanggal update -->
+            <TextView
+                android:id="@+id/tvUpdatedAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diupdate: 10 Jun 2025"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnDelete"
@@ -46,6 +56,7 @@
             android:contentDescription="@string/delete_note"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:tint="?attr/colorControlNormal" />
+            android:tint="@android:color/darker_gray" />
+        <!-- Disarankan ganti dari ?attr/colorControlNormal agar tidak error -->
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
