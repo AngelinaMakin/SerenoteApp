@@ -36,7 +36,15 @@
                 android:textSize="14sp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Tambahan tanggal update -->
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12 Jun 2025, 08:00"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:layout_marginTop="4dp" />
+
             <TextView
                 android:id="@+id/tvUpdatedAt"
                 android:layout_width="wrap_content"
@@ -44,8 +52,7 @@
                 android:text="Diupdate: 10 Jun 2025"
                 android:textSize="12sp"
                 android:textColor="#888888"
-                android:layout_marginTop="4dp" />
-
+                android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <ImageButton
@@ -57,6 +64,5 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:tint="@android:color/darker_gray" />
-        <!-- Disarankan ganti dari ?attr/colorControlNormal agar tidak error -->
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
