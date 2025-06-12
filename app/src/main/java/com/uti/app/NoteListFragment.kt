@@ -1,16 +1,18 @@
 package com.example.serenoteapp.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.serenoteapp.R
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
@@ -18,10 +20,6 @@ import com.example.serenoteapp.databinding.FragmentNoteListBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
-import androidx.recyclerview.widget.DividerItemDecoration
-import android.view.inputmethod.InputMethodManager
-import android.content.Context
-
 
 class NoteListFragment : Fragment() {
 
@@ -41,7 +39,6 @@ class NoteListFragment : Fragment() {
     ): View {
         _binding = FragmentNoteListBinding.inflate(inflater, container, false)
 
-
         noteAdapter = NoteAdapter(
             onItemClick = { selectedNote ->
                 val action = NoteListFragmentDirections.actionNoteListFragmentToNoteAddFragment(selectedNote)
@@ -55,7 +52,6 @@ class NoteListFragment : Fragment() {
         binding.rvNotes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
-
             addItemDecoration(
                 DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
             )
@@ -72,28 +68,21 @@ class NoteListFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { noteAdapter.filter(it)
+                newText?.let {
+                    noteAdapter.filter(it)
                     binding.tvEmptyState.visibility = if (noteAdapter.itemCount == 0) View.VISIBLE else View.GONE
                     binding.tvNoteCount.text = "Jumlah Catatan: ${noteAdapter.itemCount}"
                 }
-
                 return true
             }
         })
 
-            //Observe StateFlow catatan dan tampilkan dengan NoteAdapter
         lifecycleScope.launchWhenStarted {
             noteViewModel.allNotes.collectLatest { notes ->
-                binding.progressBar.visibility = View.GONE //tampilkan progressbar
+                binding.progressBar.visibility = View.GONE
                 noteAdapter.setData(notes)
                 binding.tvNoteCount.text = "Jumlah Catatan: ${notes.size}"
-
-                if (notes.isEmpty()) {
-                    binding.tvEmptyState.visibility = View.VISIBLE
-                } else {
-                    binding.tvEmptyState.visibility = View.GONE
-                }
-
+                binding.tvEmptyState.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
             }
         }
 
@@ -108,12 +97,12 @@ class NoteListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-
-        }
+    }
 
     private fun resetFilter() {
         noteAdapter.filter("")
         binding.searchView.setQuery("", false)
     }
-
 }
+
+//perbarui
