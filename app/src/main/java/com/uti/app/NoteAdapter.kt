@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.databinding.ItemNoteBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NoteAdapter(
     private val onItemClick: (Note) -> Unit,
@@ -15,16 +17,20 @@ class NoteAdapter(
 
     private var fullList = listOf<Note>()
 
+
     inner class NoteViewHolder(private val binding: ItemNoteBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(note: Note) {
             binding.tvTitle.text = note.title
             binding.tvContent.text = note.content
+            binding.tvDate.text = formatDate(note.timestamp)
+            binding.tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
 
             binding.root.setOnClickListener {
                 onItemClick(note)
             }
+
             binding.btnDelete.setOnClickListener {
                 onDeleteClick(note)
             }
@@ -59,6 +65,11 @@ class NoteAdapter(
             }
         }
         submitList(filtered)
+    }
+
+    private fun formatDate(timestamp: Long): String {
+        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+        return sdf.format(Date(timestamp))
     }
 
     companion object {
