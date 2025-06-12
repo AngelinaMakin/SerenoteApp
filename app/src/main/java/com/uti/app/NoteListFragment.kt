@@ -74,6 +74,7 @@ class NoteListFragment : Fragment() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let { noteAdapter.filter(it)
                     binding.tvEmptyState.visibility = if (noteAdapter.itemCount == 0) View.VISIBLE else View.GONE
+                    binding.tvNoteCount.text = "Jumlah Catatan: ${noteAdapter.itemCount}"
                 }
 
                 return true
@@ -85,6 +86,7 @@ class NoteListFragment : Fragment() {
             noteViewModel.allNotes.collectLatest { notes ->
                 binding.progressBar.visibility = View.GONE //tampilkan progressbar
                 noteAdapter.setData(notes)
+                binding.tvNoteCount.text = "Jumlah Catatan: ${notes.size}"
 
                 if (notes.isEmpty()) {
                     binding.tvEmptyState.visibility = View.VISIBLE
