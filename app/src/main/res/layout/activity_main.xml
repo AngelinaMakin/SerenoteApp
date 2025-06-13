@@ -19,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Tombol hapus semua -->
     <Button
         android:id="@+id/btnDeleteAll"
         android:layout_width="wrap_content"
@@ -26,8 +27,9 @@
         android:text="Hapus Semua"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Tombol export TXT -->
     <Button
         android:id="@+id/btnExport"
         android:layout_width="wrap_content"
@@ -35,6 +37,17 @@
         android:text="Export ke TXT"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Tombol set reminder -->
+    <Button
+        android:id="@+id/btnReminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Reminder"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnExport"
+        app:layout_constraintEnd_toStartOf="@id/btnDeleteAll" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
