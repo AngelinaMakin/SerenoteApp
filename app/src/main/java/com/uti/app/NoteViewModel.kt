@@ -2,6 +2,7 @@ package com.example.serenoteapp.viewmodel
 
 import android.content.Context
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -38,6 +39,11 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
     fun deleteNote(note: Note)  = viewModelScope.launch { repository.deleteNote(note) }
     fun deleteAllNotes()        = viewModelScope.launch { repository.deleteAllNotes() }
 
+    /* ---------- Search ----------- */
+    fun searchNotes(query: String): LiveData<List<Note>> {
+        return repository.searchNotes(query)
+    }
+
     /* ---------- Export ---------- */
     fun exportNotesToTxt(context: Context) {
         val file = File(context.getExternalFilesDir(null), "catatan_serenote.txt")
@@ -72,9 +78,9 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         context: Context,
         note: Note,
         delayMillis: Long = TimeUnit.HOURS.toMillis(1)
-    ) = scheduleReminder(note, context, delayMillis)   // delegasi ke fungsi utama
+    ) = scheduleReminder(note, context, delayMillis)
 
     /* ---------- Utils ----------- */
     private fun formatDate(ts: Long): String =
-        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
+        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
 }
