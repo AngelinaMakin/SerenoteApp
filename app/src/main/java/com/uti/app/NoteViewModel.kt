@@ -4,9 +4,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.worker.ReminderWorker
@@ -22,59 +22,59 @@ import java.util.concurrent.TimeUnit
 
 class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
+    /* ---------- State ----------- */
     private val _allNotes = MutableStateFlow<List<Note>>(emptyList())
     val allNotes: StateFlow<List<Note>> = _allNotes.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repository.getAllNotes().collectLatest { notes ->
-                _allNotes.value = notes
-            }
+            repository.getAllNotes().collectLatest { _allNotes.value = it }
         }
     }
 
-    fun insertNote(note: Note) = viewModelScope.launch {
-        repository.insertNote(note)
-    }
+    /* ---------- CRUD ------------ */
+    fun insertNote(note: Note)  = viewModelScope.launch { repository.insertNote(note) }
+    fun updateNote(note: Note)  = viewModelScope.launch { repository.updateNote(note) }
+    fun deleteNote(note: Note)  = viewModelScope.launch { repository.deleteNote(note) }
+    fun deleteAllNotes()        = viewModelScope.launch { repository.deleteAllNotes() }
 
-    fun updateNote(note: Note) = viewModelScope.launch {
-        repository.updateNote(note)
-    }
-
-    fun deleteNote(note: Note) = viewModelScope.launch {
-        repository.deleteNote(note)
-    }
-
-    fun deleteAllNotes() = viewModelScope.launch {
-        repository.deleteAllNotes()
-    }
-
+    /* ---------- Export ---------- */
     fun exportNotesToTxt(context: Context) {
-        val notes = _allNotes.value
-        val fileName = "catatan_serenote.txt"
-        val file = File(context.getExternalFilesDir(null), fileName)
-        file.writeText(notes.joinToString("\n\n") {
-            "Judul: ${it.title}\nIsi: ${it.content}\nTerakhir Diupdate: ${formatDate(it.updatedAt)}"
+        val file = File(context.getExternalFilesDir(null), "catatan_serenote.txt")
+        file.writeText(_allNotes.value.joinToString("\n\n") {
+            "Judul: ${it.title}\nIsi: ${it.content}\n" +
+                    "Terakhir Diupdate: ${formatDate(it.updatedAt)}"
         })
-        Toast.makeText(context, "Berhasil export ke $fileName", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Berhasil export ke ${file.name}", Toast.LENGTH_SHORT).show()
     }
 
-    fun scheduleReminder(note: Note, context: Context) {
-        val work = OneTimeWorkRequestBuilder<ReminderWorker>()
-            .setInputData(
-                workDataOf(
-                    "title" to note.title,
-                    "content" to note.content
-                )
-            )
-            .setInitialDelay(1, TimeUnit.HOURS)  // Reminder dalam 1 jam
+    /* ---------- Reminder (versi NOTE, CONTEXT) -------- */
+    fun scheduleReminder(
+        note: Note,
+        context: Context,
+        delayMillis: Long = TimeUnit.HOURS.toMillis(1)
+    ) {
+        val data = Data.Builder()
+            .putString("title", note.title)
+            .putString("content", note.content)
             .build()
 
-        WorkManager.getInstance(context).enqueue(work)
+        val request = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInputData(data)
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(request)
     }
 
-    private fun formatDate(timestamp: Long): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
-        return sdf.format(Date(timestamp))
-    }
+    /* ---------- Reminder overload (versi CONTEXT, NOTE) -------- */
+    fun scheduleReminder(
+        context: Context,
+        note: Note,
+        delayMillis: Long = TimeUnit.HOURS.toMillis(1)
+    ) = scheduleReminder(note, context, delayMillis)   // delegasi ke fungsi utama
+
+    /* ---------- Utils ----------- */
+    private fun formatDate(ts: Long): String =
+        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
 }
