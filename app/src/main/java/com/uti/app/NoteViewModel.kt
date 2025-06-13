@@ -4,8 +4,12 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteRepository
+import com.example.serenoteapp.worker.ReminderWorker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
@@ -54,6 +59,19 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         Toast.makeText(context, "Berhasil export ke $fileName", Toast.LENGTH_SHORT).show()
     }
 
+    fun scheduleReminder(note: Note, context: Context) {
+        val work = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInputData(
+                workDataOf(
+                    "title" to note.title,
+                    "content" to note.content
+                )
+            )
+            .setInitialDelay(1, TimeUnit.HOURS)  // Reminder dalam 1 jam
+            .build()
+
+        WorkManager.getInstance(context).enqueue(work)
+    }
 
     private fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
