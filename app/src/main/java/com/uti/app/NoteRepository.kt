@@ -1,5 +1,6 @@
 package com.example.serenoteapp.data
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 
 class NoteRepository(private val noteDao: NoteDao) : INoteRepository {
@@ -20,5 +21,10 @@ class NoteRepository(private val noteDao: NoteDao) : INoteRepository {
 
     override suspend fun deleteAllNotes() {
         noteDao.deleteAllNotes()
+    }
+
+    // 🔍 Fungsi pencarian catatan berdasarkan judul atau isi
+    fun searchNotes(query: String): LiveData<List<Note>> {
+        return noteDao.searchNotes("%$query%")
     }
 }
