@@ -55,6 +55,7 @@
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
+        <!-- Tombol Share -->
         <ImageButton
             android:id="@+id/btnShare"
             android:layout_width="wrap_content"
@@ -66,6 +67,7 @@
             android:tint="@color/darker_gray"
             android:layout_marginStart="8dp" />
 
+        <!-- Tombol Delete -->
         <ImageButton
             android:id="@+id/btnDelete"
             android:layout_width="wrap_content"
@@ -76,5 +78,18 @@
             android:padding="8dp"
             android:tint="@color/darker_gray"
             android:layout_marginStart="8dp" />
+
+        <!-- Tombol Reminder (ditambahkan) -->
+        <ImageButton
+            android:id="@+id/btnReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_reminder"
+            android:contentDescription="Reminder"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:tint="@color/darker_gray"
+            android:layout_marginStart="8dp" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
