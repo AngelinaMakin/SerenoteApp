@@ -13,6 +13,8 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteDetailBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NoteDetailFragment : Fragment() {
 
@@ -20,8 +22,7 @@ class NoteDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var noteViewModel: NoteViewModel
-    private var noteId: Int = 0
-    private var createdAt: Long = 0L
+    private var note: Note? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,49 +35,51 @@ class NoteDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Init ViewModel
         val dao = NoteDatabase.getDatabase(requireContext()).noteDao()
-        val repository = NoteRepository(dao)
-        val factory = NoteViewModelFactory(repository)
+        val factory = NoteViewModelFactory(NoteRepository(dao))
         noteViewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
 
-        // Ambil data dari arguments
-        arguments?.let {
-            noteId = it.getInt("noteId")
-            val title = it.getString("noteTitle")
-            val content = it.getString("noteContent")
-            createdAt = it.getLong("noteCreatedAt")
-            val updatedAt = it.getLong("noteUpdatedAt")
+        /* ──────────────── Ambil data dari arguments ──────────────── */
+        arguments?.let { bundle ->
+            val id        = bundle.getInt("noteId")
+            val title     = bundle.getString("noteTitle") ?: ""
+            val content   = bundle.getString("noteContent") ?: ""
+            val createdAt = bundle.getLong("noteCreatedAt")
+            val updatedAt = bundle.getLong("noteUpdatedAt")
 
+            note = Note(id, title, content, createdAt, updatedAt)
+
+            // Isi UI
             binding.etTitle.setText(title)
             binding.etContent.setText(content)
-
-            // Tampilkan tanggal
-            binding.tvCreatedAt.text = "Dibuat: ${formatDate(createdAt)}"
-            binding.tvUpdatedAt.text = "Terakhir diubah: ${formatDate(updatedAt)}"
+            binding.tvCreatedAt.text  = "Dibuat: ${formatDate(createdAt)}"
+            binding.tvUpdatedAt.text  = "Terakhir diubah: ${formatDate(updatedAt)}"
         }
 
-        binding.btnUpdateNote.setOnClickListener {
-            val updatedTitle = binding.etTitle.text.toString()
-            val updatedContent = binding.etContent.text.toString()
+        /* ──────────────── Tombol SIMPAN (btnSave) ──────────────── */
+        binding.btnSave.setOnClickListener {
+            val newTitle   = binding.etTitle.text.toString().trim()
+            val newContent = binding.etContent.text.toString().trim()
 
-            if (updatedTitle.isNotEmpty() && updatedContent.isNotEmpty()) {
-                val updatedNote = Note(
-                    id = noteId,
-                    title = updatedTitle,
-                    content = updatedContent,
-                    createdAt = createdAt,
+            if (newTitle.isEmpty() || newContent.isEmpty()) {
+                Toast.makeText(requireContext(), "Judul dan isi tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            note?.let { current ->
+                val updatedNote = current.copy(
+                    title     = newTitle,
+                    content   = newContent,
                     updatedAt = System.currentTimeMillis()
                 )
-
                 noteViewModel.update(updatedNote)
                 Toast.makeText(requireContext(), "Catatan diperbarui", Toast.LENGTH_SHORT).show()
-                requireActivity().onBackPressedDispatcher.onBackPressed()
-            } else {
-                Toast.makeText(requireContext(), "Judul dan isi tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
             }
         }
 
-        //  Tombol kembali
+        /* ──────────────── Tombol Kembali ──────────────── */
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -87,9 +90,6 @@ class NoteDetailFragment : Fragment() {
         _binding = null
     }
 
-    // Fungsi format tanggal
-    private fun formatDate(timestamp: Long): String {
-        val sdf = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date(timestamp))
-    }
+    private fun formatDate(ts: Long): String =
+        SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(ts))
 }
