@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
@@ -26,8 +29,10 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQ_WRITE_STORAGE = 100
-        private const val REQ_POST_NOTIF   = 200
+        private const val REQ_POST_NOTIF = 200
     }
+
+    private lateinit var adapter: NoteAdapter
 
     private val noteViewModel: NoteViewModel by viewModels {
         NoteViewModelFactory(
@@ -44,24 +49,43 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannelIfNeeded()
         requestNotifPermissionIfNeeded()
 
+        // Inisialisasi RecyclerView
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        adapter = NoteAdapter()
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+
+        // SearchView setup
+        val searchView = findViewById<SearchView>(R.id.searchView)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    noteViewModel.searchNotes(newText).observe(this@MainActivity) { notes ->
+                        adapter.submitList(notes)
+                    }
+                }
+                return true
+            }
+        })
+
         collectAllNotes()
 
-        val btnDeleteAll  = findViewById<Button>(R.id.btnDeleteAll)
-        val btnExport     = findViewById<Button>(R.id.btnExport)
-        val btnReminder   = findViewById<Button>(R.id.btnReminder)
+        val btnDeleteAll = findViewById<Button>(R.id.btnDeleteAll)
+        val btnExport = findViewById<Button>(R.id.btnExport)
+        val btnReminder = findViewById<Button>(R.id.btnReminder)
 
         btnDeleteAll.setOnClickListener { confirmAndDeleteAll() }
-        btnExport.setOnClickListener    { exportNotesWithPermission() }
-        btnReminder.setOnClickListener  { scheduleLatestNoteReminder() }
+        btnExport.setOnClickListener { exportNotesWithPermission() }
+        btnReminder.setOnClickListener { scheduleLatestNoteReminder() }
     }
-
-    /* ---------------------------------------------------------------------- */
-    /*  Helper‑helper private                                                 */
-    /* ---------------------------------------------------------------------- */
 
     private fun collectAllNotes() {
         lifecycleScope.launch {
-            noteViewModel.allNotes.collectLatest { latestNotes = it }
+            noteViewModel.allNotes.collectLatest {
+                latestNotes = it
+                adapter.submitList(it)
+            }
         }
     }
 
@@ -80,9 +104,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun exportNotesWithPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
-            ContextCompat.checkSelfPermission(
-                this, Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQ_WRITE_STORAGE
@@ -113,9 +136,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestNotifPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQ_POST_NOTIF
@@ -123,15 +145,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /* ---------------------------------------------------------------------- */
-    /*  Permission callback                                                   */
-    /* ---------------------------------------------------------------------- */
-
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         when (requestCode) {
             REQ_WRITE_STORAGE ->
                 if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
@@ -142,4 +159,4 @@ class MainActivity : AppCompatActivity() {
             REQ_POST_NOTIF -> { /* tidak wajib aksi lanjutan */ }
         }
     }
-} 
+}
