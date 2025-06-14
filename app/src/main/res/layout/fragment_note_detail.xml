@@ -87,5 +87,15 @@
             android:backgroundTint="@color/purple_500"
             android:textColor="@android:color/white" />
 
+        <!-- BUTTON HAPUS -->
+        <Button
+            android:id="@+id/btnDeleteNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hapus Catatan"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 </ScrollView>
