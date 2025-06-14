@@ -45,9 +45,14 @@ class NoteDetailFragment : Fragment() {
             val title = it.getString("noteTitle")
             val content = it.getString("noteContent")
             createdAt = it.getLong("noteCreatedAt")
+            val updatedAt = it.getLong("noteUpdatedAt")
 
             binding.etTitle.setText(title)
             binding.etContent.setText(content)
+
+            //  Tampilkan tanggal
+            binding.tvCreatedAt.text = "Dibuat: ${formatDate(createdAt)}"
+            binding.tvUpdatedAt.text = "Terakhir diubah: ${formatDate(updatedAt)}"
         }
 
         binding.btnUpdateNote.setOnClickListener {
@@ -75,5 +80,11 @@ class NoteDetailFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Fungsi format tanggal
+    private fun formatDate(timestamp: Long): String {
+        val sdf = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
+        return sdf.format(java.util.Date(timestamp))
     }
 }
