@@ -37,17 +37,20 @@
             android:id="@+id/tvCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dibuat: "
-            android:textSize="14sp"
-            android:paddingTop="8dp" />
+            android:text="Dibuat: -"
+            android:textSize="12sp"
+            android:textColor="#888888"
+            android:layout_marginTop="12dp" />
 
         <!-- TANGGAL DIPERBARUI -->
         <TextView
             android:id="@+id/tvUpdatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Terakhir diubah: "
-            android:textSize="14sp" />
+            android:text="Diperbarui: -"
+            android:textSize="12sp"
+            android:textColor="#888888"
+            android:layout_marginTop="4dp" />
 
         <!-- EDIT TITLE -->
         <EditText
@@ -93,6 +96,14 @@
             android:layout_marginTop="8dp"
             android:backgroundTint="@android:color/holo_red_light"
             android:textColor="@android:color/white" />
+
+        <!-- ✅ BUTTON KEMBALI -->
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kembali"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 </ScrollView>
