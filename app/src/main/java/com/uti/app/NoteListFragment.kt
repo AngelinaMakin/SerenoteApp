@@ -1,17 +1,12 @@
-package com.example.serenoteapp.ui
+package com.example.serenoteapp.ui.fragment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.NoteDatabase
@@ -19,90 +14,57 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteListBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
-import kotlinx.coroutines.flow.collectLatest
 
 class NoteListFragment : Fragment() {
 
     private var _binding: FragmentNoteListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var noteAdapter: NoteAdapter
 
-    private val noteViewModel: NoteViewModel by viewModels {
-        NoteViewModelFactory(
-            NoteRepository(NoteDatabase.getDatabase(requireContext()).noteDao())
-        )
-    }
+    private lateinit var noteAdapter: NoteAdapter
+    private lateinit var noteViewModel: NoteViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNoteListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        noteAdapter = NoteAdapter(
-            onItemClick = { selectedNote ->
-                val action = NoteListFragmentDirections.actionNoteListFragmentToNoteAddFragment(selectedNote)
-                findNavController().navigate(action)
-            },
-            onDeleteClick = { selectedNote ->
-                noteViewModel.deleteNote(selectedNote)
-            }
-        )
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        binding.rvNotes.apply {
+        // Inisialisasi ViewModel
+        val dao = NoteDatabase.getDatabase(requireContext()).noteDao()
+        val repository = NoteRepository(dao)
+        val factory = NoteViewModelFactory(repository)
+        noteViewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
+
+        // Setup RecyclerView
+        noteAdapter = NoteAdapter()
+        binding.rvNoteList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
-            addItemDecoration(
-                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-            )
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { noteAdapter.filter(it) }
+        // Observasi data LiveData
+        noteViewModel.allNotes.observe(viewLifecycleOwner) { notes ->
+            binding.progressBar.visibility = View.GONE
+            noteAdapter.setData(notes)
 
-                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(binding.searchView.windowToken, 0)
-
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let {
-                    noteAdapter.filter(it)
-                    binding.tvEmptyState.visibility = if (noteAdapter.itemCount == 0) View.VISIBLE else View.GONE
-                    binding.tvNoteCount.text = "Jumlah Catatan: ${noteAdapter.itemCount}"
-                }
-                return true
-            }
-        })
-
-        lifecycleScope.launchWhenStarted {
-            noteViewModel.allNotes.collectLatest { notes ->
-                binding.progressBar.visibility = View.GONE
-                noteAdapter.setData(notes)
-                binding.tvNoteCount.text = "Jumlah Catatan: ${notes.size}"
-                binding.tvEmptyState.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
-            }
+            binding.tvNoteCount.text = "Jumlah Catatan: ${notes.size}"
+            binding.tvEmptyState.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        binding.fabAdd.setOnClickListener {
-            val action = NoteListFragmentDirections.actionNoteListFragmentToNoteAddFragment(null)
-            findNavController().navigate(action)
+        // Tambahan: klik floating action button (misalnya)
+        binding.fabAddNote.setOnClickListener {
+            // Navigasi ke NoteAddFragment (jika pakai Navigation Component)
+            // findNavController().navigate(R.id.action_noteListFragment_to_noteAddFragment)
         }
-
-        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-    private fun resetFilter() {
-        noteAdapter.filter("")
-        binding.searchView.setQuery("", false)
-    }
 }
-
-//perbarui
