@@ -19,6 +19,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.adapter.NoteAdapter
@@ -30,14 +31,13 @@ import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 import com.google.gson.Gson
 import java.io.File
 import kotlinx.coroutines.launch
-import androidx.lifecycle.lifecycleScope
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val CHANNEL_ID = "note_channel"
-        private const val PREF_NAME  = "settings"
-        private const val KEY_DARK   = "dark_mode"
+        private const val PREF_NAME = "settings"
+        private const val KEY_DARK = "dark_mode"
     }
 
     private lateinit var adapter: NoteAdapter
@@ -50,9 +50,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /* ------------------------------------------------------------ */
-    /* onCreate                                                     */
-    /* ------------------------------------------------------------ */
     override fun onCreate(savedInstanceState: Bundle?) {
         applySavedDarkMode()
         super.onCreate(savedInstanceState)
@@ -63,17 +60,16 @@ class MainActivity : AppCompatActivity() {
 
         tvTotal = findViewById(R.id.tvTotalNotes)
 
-        /* RecyclerView */
         adapter = NoteAdapter(
-            onItemClick  = { /* handle click */ },
+            onItemClick = { /* handle click */ },
             onDeleteClick = { viewModel.deleteNote(it) }
         )
+
         findViewById<RecyclerView>(R.id.recyclerView).apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
         }
 
-        /* Search */
         findViewById<SearchView>(R.id.searchView)
             .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(q: String?) = false
@@ -87,7 +83,6 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-        /* Spinner kategori */
         val spinner = findViewById<Spinner>(R.id.spinnerCategory)
         spinner.adapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
@@ -103,7 +98,6 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        /* Switch dark mode */
         val switchDark = findViewById<SwitchCompat>(R.id.switchDarkMode)
         switchDark.isChecked = isDarkModeEnabled()
         switchDark.setOnCheckedChangeListener { _, checked ->
@@ -114,17 +108,14 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        /* Tombol‑tombol */
         findViewById<Button>(R.id.btnDeleteAll).setOnClickListener { confirmAndDeleteAll() }
-        findViewById<Button>(R.id.btnExport).setOnClickListener  { exportNotesWithPermission() }
-        findViewById<Button>(R.id.btnReminder).setOnClickListener{ scheduleLatestNoteReminder() }
+        findViewById<Button>(R.id.btnExport).setOnClickListener { exportNotesWithPermission() }
+        findViewById<Button>(R.id.btnReminder).setOnClickListener { scheduleLatestNoteReminder() }
         findViewById<Button>(R.id.btnRestore).setOnClickListener { restoreNotes() }
-
-        // Backup langsung di sini
         findViewById<Button>(R.id.btnBackup).setOnClickListener {
             viewModel.getActiveNotes().observe(this) { notes ->
-                val json  = Gson().toJson(notes)
-                val file  = File(getExternalFilesDir(null), "backup_catatan.json")
+                val json = Gson().toJson(notes)
+                val file = File(getExternalFilesDir(null), "backup_catatan.json")
                 file.writeText(json)
                 Toast.makeText(
                     this,
@@ -134,13 +125,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        /* Muat daftar awal */
         observeNotes(viewModel.getActiveNotes())
     }
 
-    /* ------------------------------------------------------------ */
-    /* LiveData helper                                              */
-    /* ------------------------------------------------------------ */
     private fun observeNotes(src: LiveData<List<Note>>) {
         viewModel.getActiveNotes().removeObservers(this)
         categories.forEach { viewModel.getNotesByCategory(it).removeObservers(this) }
@@ -152,9 +139,6 @@ class MainActivity : AppCompatActivity() {
         adapter.setData(list)
     }
 
-    /* ------------------------------------------------------------ */
-    /* Dialog & izin                                                */
-    /* ------------------------------------------------------------ */
     private fun confirmAndDeleteAll() = AlertDialog.Builder(this)
         .setTitle("Hapus semua catatan?")
         .setMessage("Tindakan ini tidak bisa dibatalkan.")
@@ -171,9 +155,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /* ------------------------------------------------------------ */
-    /* Reminder                                                     */
-    /* ------------------------------------------------------------ */
     private fun scheduleLatestNoteReminder() {
         lifecycleScope.launch {
             val note = adapter.currentList.lastOrNull() ?: return@launch
@@ -182,14 +163,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /* ------------------------------------------------------------ */
-    /* Restore                                                      */
-    /* ------------------------------------------------------------ */
     private fun restoreNotes() = viewModel.restoreNotes(this)
 
-    /* ------------------------------------------------------------ */
-    /* Dark Mode prefs                                              */
-    /* ------------------------------------------------------------ */
     private fun isDarkModeEnabled() =
         getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_DARK, false)
@@ -204,9 +179,6 @@ class MainActivity : AppCompatActivity() {
             else AppCompatDelegate.MODE_NIGHT_NO
         )
 
-    /* ------------------------------------------------------------ */
-    /* Notifikasi utils                                             */
-    /* ------------------------------------------------------------ */
     private fun createNotificationChannelIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mgr = getSystemService(NotificationManager::class.java)
@@ -234,4 +206,9 @@ class MainActivity : AppCompatActivity() {
             if (!granted)
                 Toast.makeText(this, "Izin notifikasi ditolak", Toast.LENGTH_SHORT).show()
         }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right)
+    }
 }
