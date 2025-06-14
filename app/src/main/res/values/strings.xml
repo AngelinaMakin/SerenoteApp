@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">SerenoteApp</string>
     <string name="locked">Terkunci</string>
     <string name="pinned">Ditandai</string>
     <string name="star">Bintang</string>
