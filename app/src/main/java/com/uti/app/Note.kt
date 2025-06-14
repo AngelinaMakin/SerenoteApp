@@ -18,8 +18,10 @@ data class Note(
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L,
 
+
     val category: String = "Umum",
     val isPinned: Boolean = false,
+
 
     val isArchived: Boolean = false  // properti baru untuk status arsip
 ) : Parcelable
