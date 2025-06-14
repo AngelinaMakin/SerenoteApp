@@ -42,8 +42,13 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
         repo.updateNote(updated)
     }
 
-    fun deleteNote(note: Note) = viewModelScope.launch { repo.deleteNote(note) }
-    fun deleteAllNotes() = viewModelScope.launch { repo.deleteAllNotes() }
+    fun deleteNote(note: Note) = viewModelScope.launch {
+        repo.deleteNote(note)
+    }
+
+    fun deleteAllNotes() = viewModelScope.launch {
+        repo.deleteAllNotes()
+    }
 
     // GETTER
     fun getLatestNote(): Note? = _allNotes.value?.maxByOrNull { it.updatedAt }
@@ -78,4 +83,8 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
             Toast.makeText(context, e.message ?: "Restore gagal", Toast.LENGTH_SHORT).show()
         }
     }
+
+    // fungsi tambahan untuk adapter
+    fun update(note: Note) = updateNote(note)
+    fun delete(note: Note) = deleteNote(note)
 }
