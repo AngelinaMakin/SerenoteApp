@@ -11,8 +11,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteAdapter(
-    private val onItemClick:   (Note) -> Unit = {},   // default = no‑op
-    private val onDeleteClick: (Note) -> Unit = {}
+    private val onItemClick: (Note) -> Unit = {},
+    private val onDeleteClick: (Note) -> Unit = {},
+    private val onNoteUpdated: (Note) -> Unit = {} // ✅ Tambahan listener untuk pin update
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
 
     private var fullList = emptyList<Note>()
@@ -21,15 +22,31 @@ class NoteAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(note: Note) = with(binding) {
-            tvTitle.text      = note.title
-            tvContent.text    = note.content
-            tvDate.text       = formatDate(note.timestamp)
-            tvUpdatedAt.text  = "Diupdate: ${formatDate(note.updatedAt)}"
+            tvTitle.text = note.title
+            tvContent.text = note.content
+            tvDate.text = formatDate(note.timestamp)
+            tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
 
-            root.setOnClickListener     { onItemClick(note) }
-            btnDelete.setOnClickListener{ onDeleteClick(note) }
+            // Tampilkan icon pin jika isPinned true
+            ivPin.visibility = if (note.isPinned) android.view.View.VISIBLE else android.view.View.GONE
 
-            // animasi sederhana
+            root.setOnClickListener {
+                onItemClick(note)
+            }
+
+            btnDelete.setOnClickListener {
+                onDeleteClick(note)
+            }
+
+            // ✅ Tambahkan long click untuk toggle pin
+            root.setOnLongClickListener {
+                val pinned = !note.isPinned
+                val updatedNote = note.copy(isPinned = pinned, updatedAt = System.currentTimeMillis())
+                onNoteUpdated(updatedNote)
+                true
+            }
+
+            // Animasi
             root.alpha = 0f
             root.animate().alpha(1f).setDuration(300).start()
         }
@@ -61,7 +78,7 @@ class NoteAdapter(
     }
 
     private fun formatDate(ts: Long): String =
-        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
+        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Note>() {
