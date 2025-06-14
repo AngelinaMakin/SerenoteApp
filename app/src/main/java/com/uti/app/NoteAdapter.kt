@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -41,6 +42,10 @@ class NoteAdapter(
             tvDate.text = formatDate(note.timestamp)
             tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
             ivPin.visibility = if (note.isPinned) View.VISIBLE else View.GONE
+
+            // 🔒 Tampilkan ikon kunci jika dikunci
+            itemView.findViewById<ImageView>(R.id.ivLock).visibility =
+                if (note.isLocked) View.VISIBLE else View.GONE
 
             // Click utama
             root.setOnClickListener { onItemClick(note) }
