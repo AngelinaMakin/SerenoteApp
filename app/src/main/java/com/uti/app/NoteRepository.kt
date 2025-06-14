@@ -3,6 +3,7 @@ package com.example.serenoteapp.data
 import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 class NoteRepository(private val dao: NoteDao) {
@@ -11,9 +12,9 @@ class NoteRepository(private val dao: NoteDao) {
     fun getAllNotesFlow(): Flow<List<Note>> = dao.getAllNotesFlow()
 
     // READ
-    fun getActiveNotes() = dao.getActiveNotes()
-    fun getNotesByCategory(category: String) = dao.getNotesByCategory(category)
-    fun searchNotes(query: String) = dao.searchNotes(query)
+    fun getActiveNotes(): Flow<List<Note>> = dao.getActiveNotes()
+    fun getNotesByCategory(category: String): Flow<List<Note>> = dao.getNotesByCategory(category)
+    fun searchNotes(query: String): Flow<List<Note>> = dao.searchNotes(query)
 
     // WRITE
     suspend fun insertNote(note: Note) = dao.insertNote(note)
@@ -23,7 +24,7 @@ class NoteRepository(private val dao: NoteDao) {
 
     // EXPORT ke .txt
     suspend fun exportNotesToTxt(context: Context) {
-        val notes = dao.getActiveNotes().value ?: emptyList()
+        val notes = dao.getActiveNotes().first() // ✅ Gunakan .first() untuk mengambil isi Flow
         val file = File(context.getExternalFilesDir(null), "catatan_export.txt")
         file.writeText(notes.joinToString("\n\n") {
             "Judul: ${it.title}\nIsi:\n${it.content}"
