@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.serenoteapp">
 
-    <!-- Izin untuk menulis ke penyimpanan -->
+    <!-- Izin akses penyimpanan -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- Izin untuk menampilkan notifikasi (wajib untuk Android 13 / API 33+) -->
+    <!-- Izin notifikasi untuk Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SerenoteApp">
 
+        <!-- Activity Login sebagai launcher -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -25,11 +26,12 @@
             </intent-filter>
         </activity>
 
+        <!-- MainActivity setelah login -->
         <activity
             android:name=".MainActivity"
             android:exported="true" />
 
-        <!-- Receiver untuk Reminder -->
+        <!-- Receiver untuk notifikasi pengingat -->
         <receiver android:name=".receiver.ReminderReceiver" />
 
     </application>

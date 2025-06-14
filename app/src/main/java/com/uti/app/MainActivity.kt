@@ -12,12 +12,12 @@ import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         NoteViewModelFactory(NoteRepository(NoteDatabase.getDatabase(this).noteDao()))
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         applySavedDarkMode()
         super.onCreate(savedInstanceState)
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         tvTotal = findViewById(R.id.tvTotalNotes)
 
         adapter = NoteAdapter(
-            onItemClick = { note -> handleNoteClick(note) },
+            onItemClick = { handleNoteClick(it) },
             onDeleteClick = { viewModel.deleteNote(it) }
         )
 
@@ -69,33 +70,43 @@ class MainActivity : AppCompatActivity() {
             adapter = this@MainActivity.adapter
         }
 
+        setupSearchView()
+        setupCategorySpinner()
+        setupButtons()
+        observeNotes(viewModel.getActiveNotes())
+    }
+
+    private fun setupSearchView() {
         findViewById<SearchView>(R.id.searchView).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(text: String?): Boolean {
-                if (text.isNullOrBlank()) {
-                    observeNotes(viewModel.getActiveNotes())
+                val source = if (text.isNullOrBlank()) {
+                    viewModel.getActiveNotes()
                 } else {
-                    viewModel.searchNotes(text).observe(this@MainActivity) { updateUI(it) }
+                    viewModel.searchNotes(text)
                 }
+                observeNotes(source)
                 return true
             }
         })
+    }
 
+    private fun setupCategorySpinner() {
         val spinner = findViewById<Spinner>(R.id.spinnerCategory)
         spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val source = if (categories[position] == "Semua") {
-                    viewModel.getActiveNotes()
-                } else {
-                    viewModel.getNotesByCategory(categories[position])
-                }
+                val selected = categories[position]
+                val source = if (selected == "Semua") viewModel.getActiveNotes() else viewModel.getNotesByCategory(selected)
                 observeNotes(source)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+    }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun setupButtons() {
         findViewById<SwitchCompat>(R.id.switchDarkMode).apply {
             isChecked = isDarkModeEnabled()
             setOnCheckedChangeListener { _, isChecked ->
@@ -118,18 +129,13 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Backup disimpan: ${file.absolutePath}", Toast.LENGTH_LONG).show()
             }
         }
-
-        observeNotes(viewModel.getActiveNotes())
     }
 
     private fun handleNoteClick(note: Note) {
         if (note.isLocked) {
             showPinDialog { isCorrect ->
-                if (isCorrect) {
-                    openDetail(note)
-                } else {
-                    Toast.makeText(this, "PIN salah!", Toast.LENGTH_SHORT).show()
-                }
+                if (isCorrect) openDetail(note)
+                else Toast.makeText(this, "PIN salah!", Toast.LENGTH_SHORT).show()
             }
         } else {
             openDetail(note)
@@ -150,12 +156,12 @@ class MainActivity : AppCompatActivity() {
                     .getString("pin_code", "1234")
                 onResult(input.text.toString() == storedPin)
             }
-            .setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton("Batal", null)
             .show()
     }
 
     private fun openDetail(note: Note) {
-        // TODO: Ganti dengan navigasi ke detail catatan
+        // TODO: Navigasi ke detail jika sudah pakai Fragment
         Toast.makeText(this, "Buka detail: ${note.title}", Toast.LENGTH_SHORT).show()
     }
 
@@ -179,17 +185,14 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun exportNotesWithPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            == PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || // Android 10+ tidak butuh WRITE_EXTERNAL_STORAGE
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         ) {
             viewModel.exportNotesToTxt(this)
         } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                101
-            )
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 101)
         }
     }
 
@@ -245,11 +248,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
-                Toast.makeText(this, "Izin notifikasi ditolak", Toast.LENGTH_SHORT).show()
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 101)
             }
         }
 
