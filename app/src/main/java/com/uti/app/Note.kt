@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-
 @Parcelize
 @Entity(tableName = "notes")
 data class Note(
@@ -20,5 +19,7 @@ data class Note(
     val updatedAt: Long = 0L,
 
     val category: String = "Umum",
-    val isPinned: Boolean = false
+    val isPinned: Boolean = false,
+
+    val isArchived: Boolean = false  // properti baru untuk status arsip
 ) : Parcelable
