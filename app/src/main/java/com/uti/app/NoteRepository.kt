@@ -3,28 +3,17 @@ package com.example.serenoteapp.data
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 
-class NoteRepository(private val noteDao: NoteDao) : INoteRepository {
+class NoteRepository(private val dao: NoteDao) {
 
-    override suspend fun insertNote(note: Note) {
-        noteDao.insertNote(note)
-    }
+    /* ---------- Read ---------- */
+    fun getAllNotesFlow(): Flow<List<Note>>          = dao.getAllNotesFlow()
+    fun getActiveNotes(): LiveData<List<Note>>       = dao.getActiveNotes()
+    fun getNotesByCategory(cat: String)              = dao.getNotesByCategory(cat)
+    fun searchNotes(q: String)                       = dao.searchNotes(q)
 
-    override fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
-
-    override suspend fun updateNote(note: Note) {
-        noteDao.updateNote(note)
-    }
-
-    override suspend fun deleteNote(note: Note) {
-        noteDao.deleteNote(note)
-    }
-
-    override suspend fun deleteAllNotes() {
-        noteDao.deleteAllNotes()
-    }
-
-    // 🔍 Fungsi pencarian catatan berdasarkan judul atau isi
-    fun searchNotes(query: String): LiveData<List<Note>> {
-        return noteDao.searchNotes("%$query%")
-    }
+    /* ---------- Write ---------- */
+    suspend fun insertNote(n: Note)                  = dao.insertNote(n)
+    suspend fun updateNote(n: Note)                  = dao.updateNote(n)
+    suspend fun deleteNote(n: Note)                  = dao.deleteNote(n)
+    suspend fun deleteAllNotes()                     = dao.deleteAllNotes()
 }

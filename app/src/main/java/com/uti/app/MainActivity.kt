@@ -18,6 +18,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.widget.SearchView
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteDatabase
@@ -41,9 +42,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* onCreate                                                               */
-    /* ---------------------------------------------------------------------- */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         /* ---------- RecyclerView ---------- */
         adapter = NoteAdapter(
-            onItemClick = { /* buka detail jika perlu */ },
+            onItemClick = { /* bisa buka detail */ },
             onDeleteClick = { noteViewModel.deleteNote(it) }
         )
         findViewById<RecyclerView>(R.id.recyclerView).apply {
@@ -64,25 +62,26 @@ class MainActivity : AppCompatActivity() {
         /* ---------- SearchView ---------- */
         findViewById<SearchView>(R.id.searchView).setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(q: String?) = false
-            override fun onQueryTextChange(text: String?): Boolean {
-                adapter.filter(text ?: "")
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (!newText.isNullOrEmpty()) {
+                    noteViewModel.searchNotes(newText).observe(this@MainActivity) { notes ->
+                        adapter.setData(notes)
+                    }
+                } else {
+                    observeNotes(noteViewModel.getActiveNotes())
+                }
                 return true
             }
         })
 
         /* ---------- Spinner Kategori ---------- */
         val spinner = findViewById<Spinner>(R.id.spinnerCategory)
-        spinner.adapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selected = categories[position]
                 observeNotes(
                     if (selected == "Semua")
@@ -95,7 +94,6 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // Observasi default (Semua)
         observeNotes(noteViewModel.getActiveNotes())
 
         /* ---------- Tombol‑tombol ---------- */
@@ -106,21 +104,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnRestore).setOnClickListener { restoreNotes() }
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* LiveData helper                                                        */
-    /* ---------------------------------------------------------------------- */
     private fun observeNotes(source: LiveData<List<Note>>) {
-        // Hapus semua observer lama supaya tidak ganda
         noteViewModel.getActiveNotes().removeObservers(this)
         categories.forEach { cat -> noteViewModel.getNotesByCategory(cat).removeObservers(this) }
         source.observe(this) { list -> adapter.setData(list) }
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* =====        BELOW ARE JUST MINIMAL “STUBS” TO STOP ERRORS      =====  */
-    /* ---------------------------------------------------------------------- */
-
-    /** 1. Konfirmasi menghapus semua catatan */
     private fun confirmAndDeleteAll() {
         AlertDialog.Builder(this)
             .setTitle("Hapus semua catatan?")
@@ -130,12 +119,11 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    /** 2. Export catatan (contoh cek izin tulis) */
     private fun exportNotesWithPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            noteViewModel.exportNotes(this)
+            noteViewModel.exportNotesToTxt(this)
         } else {
             ActivityCompat.requestPermissions(
                 this,
@@ -145,26 +133,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 3. Jadwalkan reminder (stub sederhana) */
     private fun scheduleLatestNoteReminder() {
         lifecycleScope.launch {
-            val note = noteViewModel.getLatestNote() ?: return@launch
+            val note = noteViewModel.allNotes.value.lastOrNull() ?: return@launch
             noteViewModel.scheduleReminder(this@MainActivity, note)
             Toast.makeText(this@MainActivity, "Reminder disetel!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /** 4. Backup dan restore */
     private fun backupNotes() {
         lifecycleScope.launch {
-            val list = noteViewModel.getActiveNotes().value ?: emptyList()
+            val list = noteViewModel.allNotes.value
             noteViewModel.backupNotes(this@MainActivity, list)
         }
     }
 
     private fun restoreNotes() = noteViewModel.restoreNotes(this)
 
-    /** 5. Notifikasi — channel & permission (API 33+) */
     private fun createNotificationChannelIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mgr = getSystemService(NotificationManager::class.java)
@@ -182,9 +167,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestNotifPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }

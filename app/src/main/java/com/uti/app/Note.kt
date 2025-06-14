@@ -8,20 +8,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "notes")
 data class Note(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val content: String,
-
-    val timestamp: Long,
-    val createdAt: Long = 0L,
-    val updatedAt: Long = 0L,
-
-
+    val timestamp: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
     val category: String = "Umum",
     val isPinned: Boolean = false,
-
-
-    val isArchived: Boolean = false  // properti baru untuk status arsip
+    val isArchived: Boolean = false
 ) : Parcelable
