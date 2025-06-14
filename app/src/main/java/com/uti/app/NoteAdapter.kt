@@ -13,7 +13,7 @@ import java.util.*
 class NoteAdapter(
     private val onItemClick: (Note) -> Unit = {},
     private val onDeleteClick: (Note) -> Unit = {},
-    private val onNoteUpdated: (Note) -> Unit = {} // ✅ Tambahan listener untuk pin update
+    private val onNoteUpdated: (Note) -> Unit = {}  // listener untuk update note (pin & archive)
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
 
     private var fullList = emptyList<Note>()
@@ -27,7 +27,6 @@ class NoteAdapter(
             tvDate.text = formatDate(note.timestamp)
             tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
 
-            // Tampilkan icon pin jika isPinned true
             ivPin.visibility = if (note.isPinned) android.view.View.VISIBLE else android.view.View.GONE
 
             root.setOnClickListener {
@@ -38,17 +37,13 @@ class NoteAdapter(
                 onDeleteClick(note)
             }
 
-            // ✅ Tambahkan long click untuk toggle pin
+            // Long click pada root untuk toggle pin
             root.setOnLongClickListener {
                 val pinned = !note.isPinned
                 val updatedNote = note.copy(isPinned = pinned, updatedAt = System.currentTimeMillis())
                 onNoteUpdated(updatedNote)
                 true
             }
-
-            // Animasi
-            root.alpha = 0f
-            root.animate().alpha(1f).setDuration(300).start()
         }
     }
 
@@ -60,7 +55,19 @@ class NoteAdapter(
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val note = getItem(position)
+        holder.bind(note)
+
+        // Long click pada itemView (selain root) untuk arsipkan note
+        holder.itemView.setOnLongClickListener {
+            val archivedNote = note.copy(isArchived = true, updatedAt = System.currentTimeMillis())
+            onNoteUpdated(archivedNote)
+            true
+        }
+
+        // Animasi sederhana
+        holder.itemView.alpha = 0f
+        holder.itemView.animate().alpha(1f).setDuration(300).start()
     }
 
     /* ---------- helper ---------- */
@@ -72,7 +79,7 @@ class NoteAdapter(
     fun filter(query: String) {
         val filtered = if (query.isBlank()) fullList else
             fullList.filter {
-                it.title.contains(query, true) || it.content.contains(query, true)
+                it.title.contains(query, ignoreCase = true) || it.content.contains(query, ignoreCase = true)
             }
         submitList(filtered)
     }
