@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,13 +15,14 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Kolom teks (judul, isi, tanggal) -->
+        <!-- Kolom teks -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- Judul + ikon kunci -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,14 +36,13 @@
                     android:textStyle="bold"
                     android:textSize="18sp" />
 
-                <!-- Ikon kunci (lock) -->
                 <ImageView
                     android:id="@+id/ivLock"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@drawable/ic_lock"
                     android:layout_marginStart="4dp"
-                    android:contentDescription="Terkunci"
+                    android:src="@drawable/ic_lock_24"
+                    android:contentDescription="@string/locked"
                     android:visibility="gone" />
             </LinearLayout>
 
@@ -49,27 +50,27 @@
                 android:id="@+id/tvContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Isi catatan"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="12 Jun 2025, 08:00"
-                android:textSize="12sp"
-                android:textColor="#888888"
-                android:layout_marginTop="4dp" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tvUpdatedAt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="Diupdate: 10 Jun 2025"
-                android:textSize="12sp"
-                android:textColor="#888888"
-                android:layout_marginTop="2dp" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- Ikon pin -->
@@ -77,58 +78,65 @@
             android:id="@+id/ivPin"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_pin"
-            android:contentDescription="Pin"
-            android:visibility="gone"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/pinned"
+            android:src="@drawable/ic_push_pin_24"
+            android:visibility="gone" />
 
         <!-- Tombol Export -->
         <ImageButton
             android:id="@+id/btnExport"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_download"
-            android:contentDescription="Export"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/export"
             android:padding="8dp"
-            android:tint="@color/darker_gray"
-            android:layout_marginStart="8dp" />
+            android:src="@drawable/ic_download_24" />
 
         <!-- Tombol Share -->
         <ImageButton
             android:id="@+id/btnShare"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_share"
-            android:contentDescription="Bagikan"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/share"
             android:padding="8dp"
-            android:tint="@color/darker_gray"
-            android:layout_marginStart="8dp" />
+            android:src="@drawable/ic_share_24" />
+
+        <!-- Tombol Archive -->
+        <ImageButton
+            android:id="@+id/btnArchive"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/archive"
+            android:padding="8dp"
+            android:src="@drawable/ic_archive_24" />
 
         <!-- Tombol Delete -->
         <ImageButton
             android:id="@+id/btnDelete"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_delete"
-            android:contentDescription="Hapus"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/delete"
             android:padding="8dp"
-            android:tint="@color/darker_gray"
-            android:layout_marginStart="8dp" />
+            android:src="@drawable/ic_delete_24" />
 
         <!-- Tombol Reminder -->
         <ImageButton
             android:id="@+id/btnReminder"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_alarm"
-            android:contentDescription="Ingatkan"
-            android:background="@null"
             android:layout_marginStart="8dp"
+            android:contentDescription="@string/reminder"
             android:padding="8dp"
-            android:tint="@color/darker_gray" />
+            android:src="@drawable/ic_alarm_24" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
