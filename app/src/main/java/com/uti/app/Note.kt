@@ -16,5 +16,6 @@ data class Note(
     val updatedAt: Long = System.currentTimeMillis(),
     val category: String = "Umum",
     val isPinned: Boolean = false,
-    val isArchived: Boolean = false
+    val isArchived: Boolean = false,
+    val isLocked: Boolean = false // <-- properti baru ditambahkan di sini
 ) : Parcelable
