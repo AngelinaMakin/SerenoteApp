@@ -16,8 +16,13 @@ interface NoteDao {
     @Delete
     suspend fun deleteNote(note: Note)
 
+    // Versi Flow (lama, tetap dipertahankan)
     @Query("SELECT * FROM notes ORDER BY timestamp DESC")
-    fun getAllNotes(): Flow<List<Note>>
+    fun getAllNotesFlow(): Flow<List<Note>>
+
+    // ✅ Versi baru: LiveData + urut berdasarkan isPinned dan updatedAt
+    @Query("SELECT * FROM notes ORDER BY isPinned DESC, updatedAt DESC")
+    fun getAllNotes(): LiveData<List<Note>>
 
     @Query("DELETE FROM notes")
     suspend fun deleteAllNotes()
