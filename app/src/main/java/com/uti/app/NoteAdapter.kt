@@ -12,6 +12,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat            // ✅ tambahkan
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,118 +28,122 @@ class NoteAdapter(
     private val onItemClick:   (Note) -> Unit = {},
     private val onDeleteClick: (Note) -> Unit = {},
     private val onNoteUpdated: (Note) -> Unit = {}
-) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
+) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF) {
 
     private var fullList = emptyList<Note>()
 
-    inner class NoteViewHolder(private val binding: ItemNoteBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+    /* ---------------- ViewHolder ---------------- */
+    inner class NoteViewHolder(private val binding: ItemNoteBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        private val context get() = itemView.context
+        private val ctx get() = itemView.context
 
         fun bind(note: Note) = with(binding) {
-            // Tampilkan data
+
+            /* ---------- tampilkan data ---------- */
             tvTitle.text     = note.title
             tvContent.text   = note.content
             tvDate.text      = formatDate(note.timestamp)
             tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
             ivPin.visibility = if (note.isPinned) View.VISIBLE else View.GONE
+
+            // ikon kunci
             itemView.findViewById<ImageView>(R.id.ivLock).visibility =
                 if (note.isLocked) View.VISIBLE else View.GONE
 
-            // Atur ikon pin (1 ikon saja)
+            /* ---------- ikon pin dinamis ---------- */
             val btnPin = itemView.findViewById<ImageButton>(R.id.btnPin)
             btnPin.setImageResource(R.drawable.ic_pin)
             btnPin.setColorFilter(
-                if (note.isPinned)
-                    context.getColor(R.color.teal_200)
-                else
-                    context.getColor(R.color.gray)
+                ContextCompat.getColor(
+                    ctx,
+                    if (note.isPinned) R.color.teal_200 else R.color.gray
+                )
             )
 
-            // Aksi klik
+            /* ---------- aksi klik ---------- */
             root.setOnClickListener { onItemClick(note) }
             btnDelete.setOnClickListener { onDeleteClick(note) }
 
+            // toggle pin
             btnPin.setOnClickListener {
-                onNoteUpdated(note.copy(isPinned = !note.isPinned, updatedAt = System.currentTimeMillis()))
+                onNoteUpdated(note.copy(isPinned = !note.isPinned,
+                    updatedAt = System.currentTimeMillis()))
             }
-
             root.setOnLongClickListener {
-                onNoteUpdated(note.copy(isPinned = !note.isPinned, updatedAt = System.currentTimeMillis()))
+                onNoteUpdated(note.copy(isPinned = !note.isPinned,
+                    updatedAt = System.currentTimeMillis()))
                 true
             }
 
-            // Export
+            /* ---------- export ---------- */
             btnExport.setOnClickListener {
-                val file = File(context.getExternalFilesDir(null), "${note.title}.txt")
+                val file = File(ctx.getExternalFilesDir(null), "${note.title}.txt")
                 file.writeText("Judul: ${note.title}\nIsi:\n${note.content}")
-                Toast.makeText(context, "Catatan berhasil diekspor!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, "Catatan berhasil diekspor!", Toast.LENGTH_SHORT).show()
             }
             btnExport.setOnLongClickListener {
                 onNoteUpdated(note.copy(isArchived = true, updatedAt = System.currentTimeMillis()))
                 true
             }
 
-            // Archive
+            /* ---------- archive ---------- */
             btnArchive.setOnClickListener {
                 onNoteUpdated(note.copy(isArchived = true, updatedAt = System.currentTimeMillis()))
-                Toast.makeText(context, "Catatan diarsipkan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, "Catatan diarsipkan", Toast.LENGTH_SHORT).show()
             }
 
-            // Reminder
+            /* ---------- reminder ---------- */
             btnReminder.setOnClickListener {
                 val now = Calendar.getInstance()
                 TimePickerDialog(
-                    context,
-                    { _, hour, minute ->
+                    ctx,
+                    { _, h, m ->
                         val at = Calendar.getInstance().apply {
-                            set(Calendar.HOUR_OF_DAY, hour)
-                            set(Calendar.MINUTE, minute)
+                            set(Calendar.HOUR_OF_DAY, h)
+                            set(Calendar.MINUTE, m)
                             set(Calendar.SECOND, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
-                        val intent = Intent(context, ReminderReceiver::class.java).apply {
+                        val intent = Intent(ctx, ReminderReceiver::class.java).apply {
                             putExtra("title", note.title)
                             putExtra("content", note.content)
                         }
                         val pending = PendingIntent.getBroadcast(
-                            context, note.id, intent,
+                            ctx, note.id, intent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
-                        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+                        (ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
                             .setExact(AlarmManager.RTC_WAKEUP, at.timeInMillis, pending)
-
-                        Toast.makeText(context, "Pengingat diatur!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, "Pengingat diatur!", Toast.LENGTH_SHORT).show()
                     },
-                    now.get(Calendar.HOUR_OF_DAY),
-                    now.get(Calendar.MINUTE),
+                    now[Calendar.HOUR_OF_DAY],
+                    now[Calendar.MINUTE],
                     true
                 ).show()
             }
 
-            // Animasi
-            itemView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in))
+            /* ---------- animasi ---------- */
+            itemView.startAnimation(AnimationUtils.loadAnimation(ctx, R.anim.fade_in))
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return NoteViewHolder(binding)
-    }
+    /* ---------------- adapter overrides ---------------- */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder =
+        NoteViewHolder(ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-    override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NoteViewHolder, position: Int) =
         holder.bind(getItem(position))
-    }
 
+    /* ---------------- helpers ---------------- */
     fun setData(newList: List<Note>) {
         fullList = newList
         submitList(newList)
     }
 
     fun filter(query: String) {
-        val filtered = if (query.isBlank()) fullList else
-            fullList.filter { it.title.contains(query, true) || it.content.contains(query, true) }
+        val filtered = if (query.isBlank()) fullList
+        else fullList.filter { it.title.contains(query, true) || it.content.contains(query, true) }
         submitList(filtered)
     }
 
@@ -146,7 +151,7 @@ class NoteAdapter(
         SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Note>() {
+        private val DIFF = object : DiffUtil.ItemCallback<Note>() {
             override fun areItemsTheSame(o: Note, n: Note) = o.id == n.id
             override fun areContentsTheSame(o: Note, n: Note) = o == n
         }
