@@ -80,10 +80,10 @@
 
         <!-- BUTTON SIMPAN -->
         <Button
-            android:id="@+id/btnUpdateNote"
+            android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Simpan Perubahan"
+            android:text="Simpan"
             android:backgroundTint="@color/purple_500"
             android:textColor="@android:color/white" />
 
@@ -97,7 +97,7 @@
             android:backgroundTint="@android:color/holo_red_light"
             android:textColor="@android:color/white" />
 
-        <!-- ✅ BUTTON KEMBALI -->
+        <!-- BUTTON KEMBALI -->
         <Button
             android:id="@+id/btnBack"
             android:layout_width="match_parent"
