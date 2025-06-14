@@ -18,13 +18,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Spinner untuk kategori -->
+    <Spinner
+        android:id="@+id/spinnerCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/searchView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- RecyclerView untuk menampilkan daftar catatan -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
+        app:layout_constraintTop_toBottomOf="@id/spinnerCategory"
         app:layout_constraintBottom_toTopOf="@id/btnBackup"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -32,52 +42,60 @@
     <!-- Tombol Backup -->
     <Button
         android:id="@+id/btnBackup"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Backup"
-        android:layout_margin="8dp"
-        app:layout_constraintBottom_toTopOf="@id/btnExport"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:text="Backup Catatan ke JSON"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/btnRestore"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Tombol Restore -->
     <Button
         android:id="@+id/btnRestore"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Restore"
-        android:layout_margin="8dp"
+        android:text="Restore Catatan dari JSON"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@id/btnExport"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol export TXT -->
+    <!-- Tombol Export ke TXT -->
     <Button
         android:id="@+id/btnExport"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Export ke TXT"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@id/btnReminder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol set reminder -->
+    <!-- Tombol Set Reminder -->
     <Button
         android:id="@+id/btnReminder"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Set Reminder"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btnExport"
-        app:layout_constraintEnd_toStartOf="@id/btnDeleteAll" />
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@id/btnDeleteAll"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol hapus semua -->
+    <!-- Tombol Hapus Semua -->
     <Button
         android:id="@+id/btnDeleteAll"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Hapus Semua"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
