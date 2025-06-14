@@ -63,15 +63,13 @@ class NoteAdapter(
 
         // Tombol Export
         holder.itemView.findViewById<ImageButton>(R.id.btnExport).setOnClickListener {
+            val context = holder.itemView.context
             val fileName = "${note.title}.txt"
             val fileContent = "Judul: ${note.title}\nIsi:\n${note.content}"
-            val file = File(holder.itemView.context.getExternalFilesDir(null), fileName)
+            val file = File(context.getExternalFilesDir(null), fileName)
             file.writeText(fileContent)
-            Toast.makeText(
-                holder.itemView.context,
-                "Disimpan ke ${file.absolutePath}",
-                Toast.LENGTH_SHORT
-            ).show()
+
+            Toast.makeText(context, "Catatan berhasil diekspor!", Toast.LENGTH_SHORT).show()
         }
 
         // Long click pada itemView untuk arsipkan
