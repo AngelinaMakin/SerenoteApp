@@ -12,6 +12,7 @@ import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.worker.ReminderWorker
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,54 +31,58 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.getAllNotes().collectLatest {
-                _allNotes.value = it
-            }
+            repository.getAllNotes().collectLatest { _allNotes.value = it }
         }
     }
 
     /* ---------- CRUD ------------ */
-    fun insertNote(note: Note) = viewModelScope.launch {
-        repository.insertNote(note)
-    }
-
-    fun updateNote(note: Note) = viewModelScope.launch {
-        repository.updateNote(note)
-    }
-
-    fun deleteNote(note: Note) = viewModelScope.launch {
-        repository.deleteNote(note)
-    }
-
-    fun deleteAllNotes() = viewModelScope.launch {
-        repository.deleteAllNotes()
-    }
+    fun insertNote(note: Note)  = viewModelScope.launch { repository.insertNote(note) }
+    fun updateNote(note: Note)  = viewModelScope.launch { repository.updateNote(note) }
+    fun deleteNote(note: Note)  = viewModelScope.launch { repository.deleteNote(note) }
+    fun deleteAllNotes()        = viewModelScope.launch { repository.deleteAllNotes() }
 
     /* ---------- Search ----------- */
-    fun searchNotes(query: String): LiveData<List<Note>> {
-        return repository.searchNotes(query)
-    }
+    fun searchNotes(query: String): LiveData<List<Note>> = repository.searchNotes(query)
 
-    /* ---------- Export to TXT ---------- */
+    /* ---------- Export ---------- */
     fun exportNotesToTxt(context: Context) {
         val file = File(context.getExternalFilesDir(null), "catatan_serenote.txt")
         file.writeText(_allNotes.value.joinToString("\n\n") {
-            "Judul: ${it.title}\nIsi: ${it.content}\n" +
-                    "Terakhir Diupdate: ${formatDate(it.updatedAt)}"
+            "Judul: ${it.title}\nIsi: ${it.content}\nTerakhir Diupdate: ${formatDate(it.updatedAt)}"
         })
         Toast.makeText(context, "Berhasil export ke ${file.name}", Toast.LENGTH_SHORT).show()
     }
 
-    /* ---------- Backup to JSON ---------- */
+    /* ---------- Backup ---------- */
     fun backupNotes(context: Context, notes: List<Note>) {
-        val gson = Gson()
-        val json = gson.toJson(notes)
-        val file = File(context.getExternalFilesDir(null), "backup_notes.json")
+        val json  = Gson().toJson(notes)
+        val file  = File(context.getExternalFilesDir(null), "backup_notes.json")
         file.writeText(json)
         Toast.makeText(context, "Backup disimpan!", Toast.LENGTH_SHORT).show()
     }
 
-    /* ---------- Reminder (parameter: note, context) ---------- */
+    /* ---------- Restore (pakai try / catch) ---------- */
+    fun restoreNotes(context: Context) {
+        try {
+            val file = File(context.getExternalFilesDir(null), "backup_notes.json")
+            if (file.exists()) {
+                val json  = file.readText()
+                val type  = object : TypeToken<List<Note>>() {}.type
+                val notes : List<Note> = Gson().fromJson(json, type)
+
+                viewModelScope.launch {
+                    notes.forEach { repository.insertNote(it.copy(id = 0)) }
+                }
+                Toast.makeText(context, "Restore berhasil!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "File backup tidak ditemukan!", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Gagal restore: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /* ---------- Reminder -------- */
     fun scheduleReminder(
         note: Note,
         context: Context,
@@ -96,7 +101,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    /* ---------- Reminder (overload: context, note) ---------- */
+    /* overload untuk kemudahan pemanggilan */
     fun scheduleReminder(
         context: Context,
         note: Note,
