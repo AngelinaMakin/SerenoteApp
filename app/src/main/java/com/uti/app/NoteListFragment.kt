@@ -4,14 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteListBinding
+import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 
@@ -40,8 +41,14 @@ class NoteListFragment : Fragment() {
         val factory = NoteViewModelFactory(repository)
         noteViewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
 
+        // Inisialisasi Adapter
+        noteAdapter = NoteAdapter(
+            onItemClick = { note -> showNoteDetail(note) },
+            onDeleteClick = { note -> noteViewModel.delete(note) },
+            onNoteUpdated = { note -> noteViewModel.update(note) }
+        )
+
         // Setup RecyclerView
-        noteAdapter = NoteAdapter()
         binding.rvNoteList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = noteAdapter
@@ -56,11 +63,16 @@ class NoteListFragment : Fragment() {
             binding.tvEmptyState.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        // Tambahan: klik floating action button (misalnya)
+        // Klik tambah catatan
         binding.fabAddNote.setOnClickListener {
-            // Navigasi ke NoteAddFragment (jika pakai Navigation Component)
-            // findNavController().navigate(R.id.action_noteListFragment_to_noteAddFragment)
+            Toast.makeText(requireContext(), "Tambah Catatan ditekan", Toast.LENGTH_SHORT).show()
+            // Navigasi ke NoteAddFragment bisa ditambah di sini kalau pakai Navigation Component
         }
+    }
+
+    // Fungsi untuk menampilkan detail catatan
+    private fun showNoteDetail(note: Note) {
+        Toast.makeText(requireContext(), "Judul: ${note.title}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {
