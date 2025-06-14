@@ -23,10 +23,10 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
         }
     }
 
-    // READ
-    fun getActiveNotes() = repo.getActiveNotes()
-    fun getNotesByCategory(category: String) = repo.getNotesByCategory(category)
-    fun searchNotes(query: String) = repo.searchNotes(query)
+    // ✅ READ — dikonversi ke LiveData agar bisa di-observe dari Activity
+    fun getActiveNotes(): LiveData<List<Note>> = repo.getActiveNotes().asLiveData()
+    fun getNotesByCategory(category: String): LiveData<List<Note>> = repo.getNotesByCategory(category).asLiveData()
+    fun searchNotes(query: String): LiveData<List<Note>> = repo.searchNotes(query).asLiveData()
 
     // WRITE
     fun insertNote(note: Note) = viewModelScope.launch {

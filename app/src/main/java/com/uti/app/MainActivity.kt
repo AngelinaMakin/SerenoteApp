@@ -49,6 +49,11 @@ class MainActivity : AppCompatActivity() {
         NoteViewModelFactory(NoteRepository(NoteDatabase.getDatabase(this).noteDao()))
     }
 
+    // ──────────────────────────────────────────────────────────────
+    // FIX: simpan LiveData yang sedang di‑observe agar bisa dilepas
+    // ──────────────────────────────────────────────────────────────
+    private var currentSource: LiveData<List<Note>>? = null   // FIX
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         applySavedDarkMode()
@@ -100,7 +105,6 @@ class MainActivity : AppCompatActivity() {
                 val source = if (selected == "Semua") viewModel.getActiveNotes() else viewModel.getNotesByCategory(selected)
                 observeNotes(source)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
@@ -165,10 +169,13 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Buka detail: ${note.title}", Toast.LENGTH_SHORT).show()
     }
 
+    // ──────────────────────────────────────────────────────────────
+    // FIX: observasi LiveData tanpa error removeObservers
+    // ──────────────────────────────────────────────────────────────
     private fun observeNotes(src: LiveData<List<Note>>) {
-        viewModel.getActiveNotes().removeObservers(this)
-        categories.forEach { viewModel.getNotesByCategory(it).removeObservers(this) }
-        src.observe(this) { updateUI(it) }
+        currentSource?.removeObservers(this)  // lepaskan observer lama
+        currentSource = src                   // simpan LiveData baru
+        src.observe(this) { updateUI(it) }    // observe LiveData baru
     }
 
     private fun updateUI(list: List<Note>) {
@@ -187,7 +194,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun exportNotesWithPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || // Android 10+ tidak butuh WRITE_EXTERNAL_STORAGE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         ) {
             viewModel.exportNotesToTxt(this)
@@ -250,11 +257,7 @@ class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 101)
-            }
+            // boleh tambahkan aksi lain jika perlu
         }
 
     override fun onBackPressed() {
