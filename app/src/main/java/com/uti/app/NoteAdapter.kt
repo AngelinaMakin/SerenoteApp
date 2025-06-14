@@ -53,7 +53,7 @@ class NoteAdapter(
 
             /* ---------- ikon pin dinamis ---------- */
             val btnPin = itemView.findViewById<ImageButton>(R.id.btnPin)
-            btnPin.setImageResource(R.drawable.ic_pin)
+            btnPin.setImageResource(R.drawable.ic_star)
             btnPin.setColorFilter(
                 ContextCompat.getColor(
                     ctx,
