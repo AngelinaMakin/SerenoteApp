@@ -39,13 +39,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- TextView untuk menampilkan total catatan -->
+    <TextView
+        android:id="@+id/tvTotalNotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total catatan: 0"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/switchDarkMode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- RecyclerView untuk daftar catatan -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:minHeight="100dp"
         android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/switchDarkMode"
+        app:layout_constraintTop_toBottomOf="@id/tvTotalNotes"
         app:layout_constraintBottom_toTopOf="@id/btnBackup"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
