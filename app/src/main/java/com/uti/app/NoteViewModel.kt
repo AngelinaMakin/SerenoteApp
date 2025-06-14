@@ -1,6 +1,9 @@
 package com.example.serenoteapp.viewmodel
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +14,7 @@ import androidx.work.WorkManager
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.worker.ReminderWorker
+import com.example.serenoteapp.receiver.ReminderReceiver // ✅ Pastikan import ini sesuai
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +65,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         Toast.makeText(context, "Backup disimpan!", Toast.LENGTH_SHORT).show()
     }
 
-    /* ---------- Restore (pakai try / catch) ---------- */
+    /* ---------- Restore ---------- */
     fun restoreNotes(context: Context) {
         try {
             val file = File(context.getExternalFilesDir(null), "backup_notes.json")
@@ -82,7 +86,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         }
     }
 
-    /* ---------- Reminder -------- */
+    /* ---------- Reminder WorkManager ---------- */
     fun scheduleReminder(
         note: Note,
         context: Context,
@@ -101,12 +105,26 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    /* overload untuk kemudahan pemanggilan */
     fun scheduleReminder(
         context: Context,
         note: Note,
         delayMillis: Long = TimeUnit.HOURS.toMillis(1)
     ) = scheduleReminder(note, context, delayMillis)
+
+    /* ---------- Reminder AlarmManager ✅ Tambahan ---------- */
+    fun setReminder(context: Context, note: Note, timeInMillis: Long) {
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            putExtra("noteTitle", note.title)
+            putExtra("noteContent", note.content)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, note.id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+
+        Toast.makeText(context, "Pengingat diatur", Toast.LENGTH_SHORT).show()
+    }
 
     /* ---------- Utils ----------- */
     private fun formatDate(ts: Long): String =

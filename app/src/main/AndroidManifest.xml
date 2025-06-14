@@ -16,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SerenoteApp">
 
-
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -29,6 +28,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+
+        <!-- Receiver untuk Reminder -->
+        <receiver android:name=".receiver.ReminderReceiver" />
+
     </application>
 
 </manifest>
