@@ -32,7 +32,8 @@
             android:exported="true" />
 
         <!-- Receiver untuk notifikasi pengingat -->
-        <receiver android:name=".receiver.ReminderReceiver" />
+        <receiver android:name=".receiver.ReminderReceiver"
+            android:exported="false"/>
 
     </application>
 
