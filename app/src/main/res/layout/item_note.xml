@@ -73,7 +73,7 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Ikon pin -->
+        <!-- Ikon pin status -->
         <ImageView
             android:id="@+id/ivPin"
             android:layout_width="24dp"
@@ -82,6 +82,17 @@
             android:contentDescription="@string/pinned"
             android:src="@drawable/ic_push_pin_24"
             android:visibility="gone" />
+
+        <!-- Tombol Pin -->
+        <ImageButton
+            android:id="@+id/btnPin"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/pin"
+            android:padding="8dp"
+            android:src="@drawable/ic_pin" />
 
         <!-- Tombol Export -->
         <ImageButton
