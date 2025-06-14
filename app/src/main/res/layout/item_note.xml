@@ -14,6 +14,7 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
+        <!-- Kolom teks -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -55,6 +56,16 @@
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
+        <!-- Icon Pin -->
+        <ImageView
+            android:id="@+id/ivPin"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_pin"
+            android:contentDescription="Pin"
+            android:visibility="gone"
+            android:layout_marginStart="8dp" />
+
         <!-- Tombol Share -->
         <ImageButton
             android:id="@+id/btnShare"
@@ -79,7 +90,7 @@
             android:tint="@color/darker_gray"
             android:layout_marginStart="8dp" />
 
-        <!-- Tombol Reminder (ditambahkan) -->
+        <!-- Tombol Reminder -->
         <ImageButton
             android:id="@+id/btnReminder"
             android:layout_width="wrap_content"
