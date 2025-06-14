@@ -30,9 +30,7 @@
             android:exported="true" />
 
         <!-- Receiver untuk Reminder -->
-
         <receiver android:name=".receiver.ReminderReceiver" />
-
 
     </application>
 
