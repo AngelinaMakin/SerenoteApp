@@ -245,6 +245,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (!granted) {
