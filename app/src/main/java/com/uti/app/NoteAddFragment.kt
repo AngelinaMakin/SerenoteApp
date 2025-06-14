@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.serenoteapp.R
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
@@ -25,6 +26,11 @@ class NoteAddFragment : Fragment() {
         )
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,13 +42,13 @@ class NoteAddFragment : Fragment() {
         noteArg?.let { note ->
             binding.etTitle.setText(note.title)
             binding.etContent.setText(note.content)
-            binding.etCategory.setText(note.category) // ✅ jika edit, isi kategori lama
+            binding.etCategory.setText(note.category)
         }
 
         binding.btnSave.setOnClickListener {
             val title = binding.etTitle.text.toString()
             val content = binding.etContent.text.toString()
-            val category = binding.etCategory.text.toString().ifBlank { "Umum" } // ✅ default kategori
+            val category = binding.etCategory.text.toString().ifBlank { "Umum" }
 
             val updatedNote = noteArg?.copy(
                 title = title,
