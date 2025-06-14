@@ -12,8 +12,8 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var adapter: NoteAdapter
+    private lateinit var tvTotal: TextView
     private val categories = listOf("Semua", "Kuliah", "Pribadi", "Ide", "Umum")
 
     private val noteViewModel: NoteViewModel by viewModels {
@@ -47,20 +48,23 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /* ------------------------------------------------------------ */
+    /* onCreate                                                     */
+    /* ------------------------------------------------------------ */
     override fun onCreate(savedInstanceState: Bundle?) {
-        /* ---------- Atur tema sebelum super.onCreate ---------- */
         applySavedDarkMode()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /* ---------- Notifikasi & izin ---------- */
         createNotificationChannelIfNeeded()
         requestNotifPermissionIfNeeded()
 
+        /* ---------- View refs ---------- */
+        tvTotal = findViewById(R.id.tvTotalNotes)
+
         /* ---------- RecyclerView ---------- */
         adapter = NoteAdapter(
-            onItemClick  = { /* buka detail */ },
+            onItemClick = { /* buka detail */ },
             onDeleteClick = { noteViewModel.deleteNote(it) }
         )
         findViewById<RecyclerView>(R.id.recyclerView).apply {
@@ -73,23 +77,31 @@ class MainActivity : AppCompatActivity() {
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (!newText.isNullOrEmpty()) {
-                    noteViewModel.searchNotes(newText).observe(this@MainActivity) { adapter.setData(it) }
-                } else observeNotes(noteViewModel.getActiveNotes())
+                if (newText.isNullOrBlank()) {
+                    observeNotes(noteViewModel.getActiveNotes())
+                } else {
+                    noteViewModel.searchNotes(newText).observe(this@MainActivity) { list ->
+                        updateUI(list)
+                    }
+                }
                 return true
             }
         })
 
         /* ---------- Spinner kategori ---------- */
         val spinner = findViewById<Spinner>(R.id.spinnerCategory)
-        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        spinner.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p: AdapterView<*>, v: View?, pos: Int, id: Long) {
-                val src = if (categories[pos] == "Semua")
-                    noteViewModel.getActiveNotes()
-                else noteViewModel.getNotesByCategory(categories[pos])
+                val src: LiveData<List<Note>> =
+                    if (categories[pos] == "Semua")
+                        noteViewModel.getActiveNotes()
+                    else
+                        noteViewModel.getNotesByCategory(categories[pos])
                 observeNotes(src)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
@@ -115,14 +127,24 @@ class MainActivity : AppCompatActivity() {
         observeNotes(noteViewModel.getActiveNotes())
     }
 
-    /* ---------- LiveData helper ---------- */
+    /* ------------------------------------------------------------ */
+    /* LiveData helper                                              */
+    /* ------------------------------------------------------------ */
     private fun observeNotes(src: LiveData<List<Note>>) {
+        // Hilangkan observer lain agar tidak ganda
         noteViewModel.getActiveNotes().removeObservers(this)
         categories.forEach { noteViewModel.getNotesByCategory(it).removeObservers(this) }
-        src.observe(this) { adapter.setData(it) }
+        src.observe(this) { list -> updateUI(list) }
     }
 
-    /* ---------- Dialog & izin ---------- */
+    private fun updateUI(list: List<Note>) {
+        tvTotal.text = "Total catatan: ${list.size}"
+        adapter.setData(list)        // ganti setData sesuai NoteAdapter kamu
+    }
+
+    /* ------------------------------------------------------------ */
+    /* Dialog & izin                                                */
+    /* ------------------------------------------------------------ */
     private fun confirmAndDeleteAll() = AlertDialog.Builder(this)
         .setTitle("Hapus semua catatan?")
         .setMessage("Tindakan ini tidak bisa dibatalkan.")
@@ -139,7 +161,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /* ---------- Reminder ---------- */
+    /* ------------------------------------------------------------ */
+    /* Reminder                                                     */
+    /* ------------------------------------------------------------ */
     private fun scheduleLatestNoteReminder() {
         lifecycleScope.launch {
             val note = adapter.currentList.lastOrNull() ?: return@launch
@@ -148,15 +172,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /* ---------- Backup / Restore ---------- */
-    private fun backupNotes() {
-        val list = adapter.currentList
-        noteViewModel.backupNotes(this, list)
-    }
+    /* ------------------------------------------------------------ */
+    /* Backup & Restore                                             */
+    /* ------------------------------------------------------------ */
+    private fun backupNotes() = noteViewModel.backupNotes(this, adapter.currentList)
     private fun restoreNotes() = noteViewModel.restoreNotes(this)
 
-    /* ---------- Dark Mode prefs ---------- */
-    private fun isDarkModeEnabled(): Boolean =
+    /* ------------------------------------------------------------ */
+    /* Dark Mode prefs                                              */
+    /* ------------------------------------------------------------ */
+    private fun isDarkModeEnabled() =
         getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getBoolean(KEY_DARK, false)
 
     private fun saveDarkMode(enabled: Boolean) =
@@ -170,7 +195,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /* ---------- Notifikasi utils ---------- */
+    /* ------------------------------------------------------------ */
+    /* Notifikasi utils                                             */
+    /* ------------------------------------------------------------ */
     private fun createNotificationChannelIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mgr = getSystemService(NotificationManager::class.java)
@@ -187,7 +214,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
-        ) { requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+        ) requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private val requestPermissionLauncher =
