@@ -1,1 +1,0 @@
-C:\Users\yulia\SerenoteApp\app\src\androidTest\java\com\uti\app\ExampleInstrumentedTest.kt

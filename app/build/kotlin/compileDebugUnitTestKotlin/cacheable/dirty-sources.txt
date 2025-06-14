@@ -1,1 +1,0 @@
-C:\Users\yulia\SerenoteApp\app\src\test\java\com\uti\app\ExampleUnitTest.kt

@@ -68,3 +68,21 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
         }
     }
 }
+
+
+fun insertNote(note: Note) {
+    viewModelScope.launch {
+        val newNote = note.copy(
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+        repository.insertNote(newNote)
+    }
+}
+
+fun updateNote(note: Note) {
+    viewModelScope.launch {
+        val updated = note.copy(updatedAt = System.currentTimeMillis())
+        repository.updateNote(updated)
+    }
+}
