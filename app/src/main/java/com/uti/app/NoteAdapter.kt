@@ -2,18 +2,22 @@ package com.example.serenoteapp.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.serenoteapp.R
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.databinding.ItemNoteBinding
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteAdapter(
     private val onItemClick: (Note) -> Unit = {},
     private val onDeleteClick: (Note) -> Unit = {},
-    private val onNoteUpdated: (Note) -> Unit = {}  // listener untuk update note (pin & archive)
+    private val onNoteUpdated: (Note) -> Unit = {}
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
 
     private var fullList = emptyList<Note>()
@@ -37,7 +41,6 @@ class NoteAdapter(
                 onDeleteClick(note)
             }
 
-            // Long click pada root untuk toggle pin
             root.setOnLongClickListener {
                 val pinned = !note.isPinned
                 val updatedNote = note.copy(isPinned = pinned, updatedAt = System.currentTimeMillis())
@@ -58,7 +61,20 @@ class NoteAdapter(
         val note = getItem(position)
         holder.bind(note)
 
-        // Long click pada itemView (selain root) untuk arsipkan note
+        // Tombol Export
+        holder.itemView.findViewById<ImageButton>(R.id.btnExport).setOnClickListener {
+            val fileName = "${note.title}.txt"
+            val fileContent = "Judul: ${note.title}\nIsi:\n${note.content}"
+            val file = File(holder.itemView.context.getExternalFilesDir(null), fileName)
+            file.writeText(fileContent)
+            Toast.makeText(
+                holder.itemView.context,
+                "Disimpan ke ${file.absolutePath}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        // Long click pada itemView untuk arsipkan
         holder.itemView.setOnLongClickListener {
             val archivedNote = note.copy(isArchived = true, updatedAt = System.currentTimeMillis())
             onNoteUpdated(archivedNote)
@@ -70,17 +86,18 @@ class NoteAdapter(
         holder.itemView.animate().alpha(1f).setDuration(300).start()
     }
 
-    /* ---------- helper ---------- */
     fun setData(newList: List<Note>) {
         fullList = newList
         submitList(newList)
     }
 
     fun filter(query: String) {
-        val filtered = if (query.isBlank()) fullList else
+        val filtered = if (query.isBlank()) fullList else {
             fullList.filter {
-                it.title.contains(query, ignoreCase = true) || it.content.contains(query, ignoreCase = true)
+                it.title.contains(query, ignoreCase = true) ||
+                        it.content.contains(query, ignoreCase = true)
             }
+        }
         submitList(filtered)
     }
 
@@ -89,8 +106,11 @@ class NoteAdapter(
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Note>() {
-            override fun areItemsTheSame(o: Note, n: Note) = o.id == n.id
-            override fun areContentsTheSame(o: Note, n: Note) = o == n
+            override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean =
+                oldItem == newItem
         }
     }
 }
