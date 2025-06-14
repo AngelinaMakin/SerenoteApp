@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 import com.example.serenoteapp.data.Note
 import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.worker.ReminderWorker
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,22 +30,35 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.getAllNotes().collectLatest { _allNotes.value = it }
+            repository.getAllNotes().collectLatest {
+                _allNotes.value = it
+            }
         }
     }
 
     /* ---------- CRUD ------------ */
-    fun insertNote(note: Note)  = viewModelScope.launch { repository.insertNote(note) }
-    fun updateNote(note: Note)  = viewModelScope.launch { repository.updateNote(note) }
-    fun deleteNote(note: Note)  = viewModelScope.launch { repository.deleteNote(note) }
-    fun deleteAllNotes()        = viewModelScope.launch { repository.deleteAllNotes() }
+    fun insertNote(note: Note) = viewModelScope.launch {
+        repository.insertNote(note)
+    }
+
+    fun updateNote(note: Note) = viewModelScope.launch {
+        repository.updateNote(note)
+    }
+
+    fun deleteNote(note: Note) = viewModelScope.launch {
+        repository.deleteNote(note)
+    }
+
+    fun deleteAllNotes() = viewModelScope.launch {
+        repository.deleteAllNotes()
+    }
 
     /* ---------- Search ----------- */
     fun searchNotes(query: String): LiveData<List<Note>> {
         return repository.searchNotes(query)
     }
 
-    /* ---------- Export ---------- */
+    /* ---------- Export to TXT ---------- */
     fun exportNotesToTxt(context: Context) {
         val file = File(context.getExternalFilesDir(null), "catatan_serenote.txt")
         file.writeText(_allNotes.value.joinToString("\n\n") {
@@ -54,7 +68,16 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         Toast.makeText(context, "Berhasil export ke ${file.name}", Toast.LENGTH_SHORT).show()
     }
 
-    /* ---------- Reminder (versi NOTE, CONTEXT) -------- */
+    /* ---------- Backup to JSON ---------- */
+    fun backupNotes(context: Context, notes: List<Note>) {
+        val gson = Gson()
+        val json = gson.toJson(notes)
+        val file = File(context.getExternalFilesDir(null), "backup_notes.json")
+        file.writeText(json)
+        Toast.makeText(context, "Backup disimpan!", Toast.LENGTH_SHORT).show()
+    }
+
+    /* ---------- Reminder (parameter: note, context) ---------- */
     fun scheduleReminder(
         note: Note,
         context: Context,
@@ -73,7 +96,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    /* ---------- Reminder overload (versi CONTEXT, NOTE) -------- */
+    /* ---------- Reminder (overload: context, note) ---------- */
     fun scheduleReminder(
         context: Context,
         note: Note,
