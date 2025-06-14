@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,8 +30,8 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
 import com.google.gson.Gson
-import java.io.File
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,9 +46,7 @@ class MainActivity : AppCompatActivity() {
     private val categories = listOf("Semua", "Kuliah", "Pribadi", "Ide", "Umum")
 
     private val viewModel: NoteViewModel by viewModels {
-        NoteViewModelFactory(
-            NoteRepository(NoteDatabase.getDatabase(this).noteDao())
-        )
+        NoteViewModelFactory(NoteRepository(NoteDatabase.getDatabase(this).noteDao()))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         tvTotal = findViewById(R.id.tvTotalNotes)
 
         adapter = NoteAdapter(
-            onItemClick = { /* handle click */ },
+            onItemClick = { note -> handleNoteClick(note) },
             onDeleteClick = { viewModel.deleteNote(it) }
         )
 
@@ -70,42 +69,41 @@ class MainActivity : AppCompatActivity() {
             adapter = this@MainActivity.adapter
         }
 
-        findViewById<SearchView>(R.id.searchView)
-            .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(q: String?) = false
-                override fun onQueryTextChange(text: String?): Boolean {
-                    if (text.isNullOrBlank()) {
-                        observeNotes(viewModel.getActiveNotes())
-                    } else {
-                        viewModel.searchNotes(text).observe(this@MainActivity) { updateUI(it) }
-                    }
-                    return true
+        findViewById<SearchView>(R.id.searchView).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+            override fun onQueryTextChange(text: String?): Boolean {
+                if (text.isNullOrBlank()) {
+                    observeNotes(viewModel.getActiveNotes())
+                } else {
+                    viewModel.searchNotes(text).observe(this@MainActivity) { updateUI(it) }
                 }
-            })
+                return true
+            }
+        })
 
         val spinner = findViewById<Spinner>(R.id.spinnerCategory)
-        spinner.adapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: AdapterView<*>, v: View?, pos: Int, id: Long) {
-                val src: LiveData<List<Note>> =
-                    if (categories[pos] == "Semua")
-                        viewModel.getActiveNotes()
-                    else
-                        viewModel.getNotesByCategory(categories[pos])
-                observeNotes(src)
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val source = if (categories[position] == "Semua") {
+                    viewModel.getActiveNotes()
+                } else {
+                    viewModel.getNotesByCategory(categories[position])
+                }
+                observeNotes(source)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val switchDark = findViewById<SwitchCompat>(R.id.switchDarkMode)
-        switchDark.isChecked = isDarkModeEnabled()
-        switchDark.setOnCheckedChangeListener { _, checked ->
-            saveDarkMode(checked)
-            AppCompatDelegate.setDefaultNightMode(
-                if (checked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
-            )
+        findViewById<SwitchCompat>(R.id.switchDarkMode).apply {
+            isChecked = isDarkModeEnabled()
+            setOnCheckedChangeListener { _, isChecked ->
+                saveDarkMode(isChecked)
+                AppCompatDelegate.setDefaultNightMode(
+                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
         }
 
         findViewById<Button>(R.id.btnDeleteAll).setOnClickListener { confirmAndDeleteAll() }
@@ -117,15 +115,48 @@ class MainActivity : AppCompatActivity() {
                 val json = Gson().toJson(notes)
                 val file = File(getExternalFilesDir(null), "backup_catatan.json")
                 file.writeText(json)
-                Toast.makeText(
-                    this,
-                    "Backup disimpan: ${file.absolutePath}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Backup disimpan: ${file.absolutePath}", Toast.LENGTH_LONG).show()
             }
         }
 
         observeNotes(viewModel.getActiveNotes())
+    }
+
+    private fun handleNoteClick(note: Note) {
+        if (note.isLocked) {
+            showPinDialog { isCorrect ->
+                if (isCorrect) {
+                    openDetail(note)
+                } else {
+                    Toast.makeText(this, "PIN salah!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            openDetail(note)
+        }
+    }
+
+    private fun showPinDialog(onResult: (Boolean) -> Unit) {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            hint = "Masukkan PIN"
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Terkunci")
+            .setView(input)
+            .setPositiveButton("OK") { _, _ ->
+                val storedPin = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+                    .getString("pin_code", "1234")
+                onResult(input.text.toString() == storedPin)
+            }
+            .setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun openDetail(note: Note) {
+        // TODO: Ganti dengan navigasi ke detail catatan
+        Toast.makeText(this, "Buka detail: ${note.title}", Toast.LENGTH_SHORT).show()
     }
 
     private fun observeNotes(src: LiveData<List<Note>>) {
@@ -139,20 +170,27 @@ class MainActivity : AppCompatActivity() {
         adapter.setData(list)
     }
 
-    private fun confirmAndDeleteAll() = AlertDialog.Builder(this)
-        .setTitle("Hapus semua catatan?")
-        .setMessage("Tindakan ini tidak bisa dibatalkan.")
-        .setPositiveButton("Hapus") { _, _ -> viewModel.deleteAllNotes() }
-        .setNegativeButton("Batal", null)
-        .show()
+    private fun confirmAndDeleteAll() {
+        AlertDialog.Builder(this)
+            .setTitle("Hapus semua catatan?")
+            .setMessage("Tindakan ini tidak bisa dibatalkan.")
+            .setPositiveButton("Hapus") { _, _ -> viewModel.deleteAllNotes() }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
 
     private fun exportNotesWithPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED
-        ) viewModel.exportNotesToTxt(this)
-        else ActivityCompat.requestPermissions(
-            this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 101
-        )
+        ) {
+            viewModel.exportNotesToTxt(this)
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                101
+            )
+        }
     }
 
     private fun scheduleLatestNoteReminder() {
@@ -163,33 +201,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun restoreNotes() = viewModel.restoreNotes(this)
+    private fun restoreNotes() {
+        viewModel.restoreNotes(this)
+    }
 
-    private fun isDarkModeEnabled() =
-        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    private fun isDarkModeEnabled(): Boolean {
+        return getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_DARK, false)
+    }
 
-    private fun saveDarkMode(enabled: Boolean) =
+    private fun saveDarkMode(enabled: Boolean) {
         getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_DARK, enabled).apply()
+    }
 
-    private fun applySavedDarkMode() =
+    private fun applySavedDarkMode() {
         AppCompatDelegate.setDefaultNightMode(
             if (isDarkModeEnabled()) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
+    }
 
     private fun createNotificationChannelIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val mgr = getSystemService(NotificationManager::class.java)
-            if (mgr.getNotificationChannel(CHANNEL_ID) == null) {
-                mgr.createNotificationChannel(
-                    NotificationChannel(
-                        CHANNEL_ID,
-                        "Note Reminder",
-                        NotificationManager.IMPORTANCE_HIGH
-                    )
+            val manager = getSystemService(NotificationManager::class.java)
+            if (manager.getNotificationChannel(CHANNEL_ID) == null) {
+                val channel = NotificationChannel(
+                    CHANNEL_ID,
+                    "Note Reminder",
+                    NotificationManager.IMPORTANCE_HIGH
                 )
+                manager.createNotificationChannel(channel)
             }
         }
     }
@@ -198,13 +240,16 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
-        ) requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted)
+            if (!granted) {
                 Toast.makeText(this, "Izin notifikasi ditolak", Toast.LENGTH_SHORT).show()
+            }
         }
 
     override fun onBackPressed() {
