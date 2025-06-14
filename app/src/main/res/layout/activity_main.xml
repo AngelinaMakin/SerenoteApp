@@ -12,7 +12,7 @@
         android:id="@+id/searchView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:queryHint="Cari catatan..."
+        android:queryHint="Cari judul atau isi..."
         android:layout_margin="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView untuk menampilkan daftar catatan -->
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
@@ -60,12 +60,12 @@
         android:text="Restore Catatan dari JSON"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/btnExport"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol Export ke TXT -->
+    <!-- Tombol Export -->
     <Button
         android:id="@+id/btnExport"
         android:layout_width="0dp"
@@ -76,7 +76,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol Set Reminder -->
+    <!-- Tombol Reminder -->
     <Button
         android:id="@+id/btnReminder"
         android:layout_width="0dp"
