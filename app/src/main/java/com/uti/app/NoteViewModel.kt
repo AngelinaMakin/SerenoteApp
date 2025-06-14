@@ -29,8 +29,19 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
     fun searchNotes(query: String) = repo.searchNotes(query)
 
     // WRITE
-    fun insertNote(note: Note) = viewModelScope.launch { repo.insertNote(note) }
-    fun updateNote(note: Note) = viewModelScope.launch { repo.updateNote(note) }
+    fun insertNote(note: Note) = viewModelScope.launch {
+        val newNote = note.copy(
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+        repo.insertNote(newNote)
+    }
+
+    fun updateNote(note: Note) = viewModelScope.launch {
+        val updated = note.copy(updatedAt = System.currentTimeMillis())
+        repo.updateNote(updated)
+    }
+
     fun deleteNote(note: Note) = viewModelScope.launch { repo.deleteNote(note) }
     fun deleteAllNotes() = viewModelScope.launch { repo.deleteAllNotes() }
 
@@ -66,23 +77,5 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
         } catch (e: Exception) {
             Toast.makeText(context, e.message ?: "Restore gagal", Toast.LENGTH_SHORT).show()
         }
-    }
-}
-
-
-fun insertNote(note: Note) {
-    viewModelScope.launch {
-        val newNote = note.copy(
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis()
-        )
-        repository.insertNote(newNote)
-    }
-}
-
-fun updateNote(note: Note) {
-    viewModelScope.launch {
-        val updated = note.copy(updatedAt = System.currentTimeMillis())
-        repository.updateNote(updated)
     }
 }
