@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +14,6 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Kolom teks -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -56,7 +55,6 @@
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
-        <!-- Icon Pin -->
         <ImageView
             android:id="@+id/ivPin"
             android:layout_width="24dp"
@@ -66,7 +64,17 @@
             android:visibility="gone"
             android:layout_marginStart="8dp" />
 
-        <!-- Tombol Share -->
+        <ImageButton
+            android:id="@+id/btnExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_download"
+            android:contentDescription="Export"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:tint="@color/darker_gray"
+            android:layout_marginStart="8dp" />
+
         <ImageButton
             android:id="@+id/btnShare"
             android:layout_width="wrap_content"
@@ -78,7 +86,6 @@
             android:tint="@color/darker_gray"
             android:layout_marginStart="8dp" />
 
-        <!-- Tombol Delete -->
         <ImageButton
             android:id="@+id/btnDelete"
             android:layout_width="wrap_content"
@@ -90,7 +97,6 @@
             android:tint="@color/darker_gray"
             android:layout_marginStart="8dp" />
 
-        <!-- Tombol Reminder -->
         <ImageButton
             android:id="@+id/btnReminder"
             android:layout_width="wrap_content"
