@@ -13,8 +13,6 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteDetailBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
-import java.text.SimpleDateFormat
-import java.util.*
 
 class NoteDetailFragment : Fragment() {
 
@@ -22,7 +20,7 @@ class NoteDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var noteViewModel: NoteViewModel
-    private var note: Note? = null
+    private var noteId: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,53 +33,40 @@ class NoteDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Init ViewModel
+        // Setup ViewModel
         val dao = NoteDatabase.getDatabase(requireContext()).noteDao()
-        val factory = NoteViewModelFactory(NoteRepository(dao))
+        val repository = NoteRepository(dao)
+        val factory = NoteViewModelFactory(repository)
         noteViewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
 
-        /* ──────────────── Ambil data dari arguments ──────────────── */
-        arguments?.let { bundle ->
-            val id        = bundle.getInt("noteId")
-            val title     = bundle.getString("noteTitle") ?: ""
-            val content   = bundle.getString("noteContent") ?: ""
-            val createdAt = bundle.getLong("noteCreatedAt")
-            val updatedAt = bundle.getLong("noteUpdatedAt")
+        // Ambil data dari arguments
+        val title = arguments?.getString("noteTitle") ?: ""
+        val content = arguments?.getString("noteContent") ?: ""
+        noteId = arguments?.getInt("noteId")
 
-            note = Note(id, title, content, createdAt, updatedAt)
+        binding.etTitle.setText(title)
+        binding.etContent.setText(content)
 
-            // Isi UI
-            binding.etTitle.setText(title)
-            binding.etContent.setText(content)
-            binding.tvCreatedAt.text  = "Dibuat: ${formatDate(createdAt)}"
-            binding.tvUpdatedAt.text  = "Terakhir diubah: ${formatDate(updatedAt)}"
-        }
-
-        /* ──────────────── Tombol SIMPAN (btnSave) ──────────────── */
+        // Tombol simpan/update
         binding.btnSave.setOnClickListener {
-            val newTitle   = binding.etTitle.text.toString().trim()
-            val newContent = binding.etContent.text.toString().trim()
+            val newTitle = binding.etTitle.text.toString()
+            val newContent = binding.etContent.text.toString()
 
-            if (newTitle.isEmpty() || newContent.isEmpty()) {
-                Toast.makeText(requireContext(), "Judul dan isi tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            note?.let { current ->
-                val updatedNote = current.copy(
-                    title     = newTitle,
-                    content   = newContent,
+            if (newTitle.isNotBlank() && newContent.isNotBlank()) {
+                val updatedNote = Note(
+                    id = noteId ?: 0,
+                    title = newTitle,
+                    content = newContent,
+                    createdAt = arguments?.getLong("noteCreatedAt") ?: System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
-                noteViewModel.update(updatedNote)
-                Toast.makeText(requireContext(), "Catatan diperbarui", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.popBackStack()
-            }
-        }
 
-        /* ──────────────── Tombol Kembali ──────────────── */
-        binding.btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+                noteViewModel.update(updatedNote)
+                Toast.makeText(requireContext(), "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack() // Kembali ke daftar
+            } else {
+                Toast.makeText(requireContext(), "Judul dan isi tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -89,7 +74,4 @@ class NoteDetailFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-    private fun formatDate(ts: Long): String =
-        SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(ts))
 }
