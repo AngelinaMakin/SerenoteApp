@@ -50,7 +50,7 @@ class NoteDetailFragment : Fragment() {
             binding.etTitle.setText(title)
             binding.etContent.setText(content)
 
-            //  Tampilkan tanggal
+            // Tampilkan tanggal
             binding.tvCreatedAt.text = "Dibuat: ${formatDate(createdAt)}"
             binding.tvUpdatedAt.text = "Terakhir diubah: ${formatDate(updatedAt)}"
         }
@@ -74,6 +74,11 @@ class NoteDetailFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Judul dan isi tidak boleh kosong", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        //  Tombol kembali
+        binding.btnBack.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
