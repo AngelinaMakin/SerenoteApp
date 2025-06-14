@@ -10,4 +10,7 @@
     <color name="darker_gray">#666666</color>
     <color name="gray">#888888</color>
 
+    <!-- Tambahan warna baru (hindari duplikat nama) -->
+    <color name="teal_200_plain">#03DAC5</color>
+    <color name="gray_light">#BDBDBD</color>
 </resources>
