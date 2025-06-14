@@ -5,15 +5,20 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+
 @Parcelize
 @Entity(tableName = "notes")
 data class Note(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
     val title: String,
     val content: String,
+
     val timestamp: Long,
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
-    val category: String = "Umum" // <-- properti baru
+    val createdAt: Long = 0L,
+    val updatedAt: Long = 0L,
+
+    val category: String = "Umum",
+    val isPinned: Boolean = false
 ) : Parcelable
