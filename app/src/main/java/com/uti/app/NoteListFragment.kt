@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.serenoteapp.R          // ⬅️ tambahkan import ini
 import com.example.serenoteapp.adapter.NoteAdapter
 import com.example.serenoteapp.data.NoteDatabase
 import com.example.serenoteapp.data.NoteRepository
@@ -43,7 +44,7 @@ class NoteListFragment : Fragment() {
 
         // Inisialisasi Adapter
         noteAdapter = NoteAdapter(
-            onItemClick = { note -> showNoteDetail(note) },
+            onItemClick   = { note -> showNoteDetail(note) },
             onDeleteClick = { note -> noteViewModel.delete(note) },
             onNoteUpdated = { note -> noteViewModel.update(note) }
         )
@@ -66,13 +67,28 @@ class NoteListFragment : Fragment() {
         // Klik tambah catatan
         binding.fabAddNote.setOnClickListener {
             Toast.makeText(requireContext(), "Tambah Catatan ditekan", Toast.LENGTH_SHORT).show()
-            // Navigasi ke NoteAddFragment bisa ditambah di sini kalau pakai Navigation Component
+            // Navigasi ke NoteAddFragment bisa ditambah di sini
         }
     }
 
-    // Fungsi untuk menampilkan detail catatan
+    // ▶️ FUNGSI BARU: buka NoteDetailFragment
     private fun showNoteDetail(note: Note) {
-        Toast.makeText(requireContext(), "Judul: ${note.title}", Toast.LENGTH_SHORT).show()
+        val bundle = Bundle().apply {
+            putInt("noteId", note.id)
+            putString("noteTitle", note.title)
+            putString("noteContent", note.content)
+            putLong("noteCreatedAt", note.createdAt)
+            putLong("noteUpdatedAt", note.updatedAt)
+        }
+
+        val detailFragment = NoteDetailFragment().apply {
+            arguments = bundle
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, detailFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onDestroyView() {
