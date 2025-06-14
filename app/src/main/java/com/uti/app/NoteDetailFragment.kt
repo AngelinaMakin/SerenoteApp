@@ -6,6 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.serenoteapp.databinding.FragmentNoteDetailBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 class NoteDetailFragment : Fragment() {
 
@@ -26,9 +30,18 @@ class NoteDetailFragment : Fragment() {
         val noteId = arguments?.getInt("noteId")
         val noteTitle = arguments?.getString("noteTitle")
         val noteContent = arguments?.getString("noteContent")
+        val createdAt = arguments?.getLong("noteCreatedAt") ?: 0L
+        val updatedAt = arguments?.getLong("noteUpdatedAt") ?: 0L
 
+        // Format tanggal
+        val createdDate = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(createdAt))
+        val updatedDate = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(updatedAt))
+
+        // Set data ke tampilan
         binding.tvTitle.text = noteTitle
         binding.tvContent.text = noteContent
+        binding.tvCreatedAt.text = "Dibuat: $createdDate"
+        binding.tvUpdatedAt.text = "Diperbarui: $updatedDate"
     }
 
     override fun onDestroyView() {
