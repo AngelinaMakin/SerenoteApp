@@ -28,6 +28,10 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE isArchived = 0 ORDER BY isPinned DESC, updatedAt DESC")
     fun getActiveNotes(): LiveData<List<Note>>
 
+    // ✅ Query berdasarkan kategori dan tidak diarsipkan
+    @Query("SELECT * FROM notes WHERE category = :category AND isArchived = 0")
+    fun getNotesByCategory(category: String): LiveData<List<Note>>
+
     @Query("DELETE FROM notes")
     suspend fun deleteAllNotes()
 
