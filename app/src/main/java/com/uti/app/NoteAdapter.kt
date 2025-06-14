@@ -11,38 +11,34 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteAdapter(
-    private val onItemClick: (Note) -> Unit,
-    private val onDeleteClick: (Note) -> Unit
+    private val onItemClick:   (Note) -> Unit = {},   // default = no‑op
+    private val onDeleteClick: (Note) -> Unit = {}
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(DIFF_CALLBACK) {
 
-    private var fullList = listOf<Note>()
-
+    private var fullList = emptyList<Note>()
 
     inner class NoteViewHolder(private val binding: ItemNoteBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(note: Note) {
-            binding.tvTitle.text = note.title
-            binding.tvContent.text = note.content
-            binding.tvDate.text = formatDate(note.timestamp)
-            binding.tvUpdatedAt.text = "Diupdate: ${formatDate(note.updatedAt)}"
+        fun bind(note: Note) = with(binding) {
+            tvTitle.text      = note.title
+            tvContent.text    = note.content
+            tvDate.text       = formatDate(note.timestamp)
+            tvUpdatedAt.text  = "Diupdate: ${formatDate(note.updatedAt)}"
 
-            binding.root.setOnClickListener {
-                onItemClick(note)
-            }
+            root.setOnClickListener     { onItemClick(note) }
+            btnDelete.setOnClickListener{ onDeleteClick(note) }
 
-            binding.btnDelete.setOnClickListener {
-                onDeleteClick(note)
-            }
-
-            // Animasi fade-in
-            itemView.alpha = 0f
-            itemView.animate().alpha(1f).setDuration(300).start()
+            // animasi sederhana
+            root.alpha = 0f
+            root.animate().alpha(1f).setDuration(300).start()
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemNoteBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
         return NoteViewHolder(binding)
     }
 
@@ -50,37 +46,27 @@ class NoteAdapter(
         holder.bind(getItem(position))
     }
 
+    /* ---------- helper ---------- */
     fun setData(newList: List<Note>) {
         fullList = newList
         submitList(newList)
     }
 
     fun filter(query: String) {
-        val filtered = if (query.isEmpty()) {
-            fullList
-        } else {
+        val filtered = if (query.isBlank()) fullList else
             fullList.filter {
-                it.title.contains(query, ignoreCase = true) ||
-                        it.content.contains(query, ignoreCase = true)
+                it.title.contains(query, true) || it.content.contains(query, true)
             }
-        }
         submitList(filtered)
     }
 
-    private fun formatDate(timestamp: Long): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-        return sdf.format(Date(timestamp))
-    }
+    private fun formatDate(ts: Long): String =
+        SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date(ts))
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Note>() {
-            override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
-                return oldItem == newItem
-            }
+            override fun areItemsTheSame(o: Note, n: Note) = o.id == n.id
+            override fun areContentsTheSame(o: Note, n: Note) = o == n
         }
     }
 }
