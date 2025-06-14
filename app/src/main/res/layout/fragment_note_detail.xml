@@ -25,21 +25,28 @@
             android:id="@+id/tvContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Isi catatan panjang banget bjir bisa disini"
+            android:text="Isi catatan panjang disini"
             android:textSize="16sp"
             android:textColor="#333333"
             android:lineSpacingExtra="6dp" />
 
-        <!-- Optional: buat tanggal -->
         <TextView
-            android:id="@+id/tvDate"
+            android:id="@+id/tvCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dibuat: 12 Juni 2025"
+            android:text="Dibuat: -"
             android:textSize="12sp"
             android:textColor="#888888"
-            android:layout_marginTop="12dp"
-            android:visibility="gone" />
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/tvUpdatedAt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Diperbarui: -"
+            android:textSize="12sp"
+            android:textColor="#888888"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 </ScrollView>
