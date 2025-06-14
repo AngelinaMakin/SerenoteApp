@@ -17,11 +17,11 @@ abstract class NoteDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     NoteDatabase::class.java,
-                    "note_db" // ✅ Gunakan 1 nama saja
-                ).build()
+                    "note_db"
+                ).fallbackToDestructiveMigration() // Tambahan penting
+                    .build()
                 INSTANCE = instance
                 instance
-
             }
         }
     }
