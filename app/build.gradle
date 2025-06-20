@@ -1,9 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'                  // Wajib untuk Room
-    id 'kotlin-parcelize'             // Untuk @Parcelize
-    id 'androidx.navigation.safeargs.kotlin' // Untuk Safe Args
+    id 'kotlin-kapt'                          // Untuk Room
+    id 'kotlin-parcelize'                     // Untuk @Parcelize
+    id 'androidx.navigation.safeargs.kotlin'  // Untuk Safe Args
 }
 
 android {
@@ -16,6 +16,7 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,7 +31,6 @@ android {
         viewBinding true
     }
 
-    // ✅ Tambahan ini WAJIB untuk fix error kamu
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -42,33 +42,33 @@ android {
 }
 
 dependencies {
-    // AndroidX & Material
+    // AndroidX & Material Design
     implementation "androidx.core:core-ktx:1.13.1"
     implementation "androidx.appcompat:appcompat:1.7.1"
     implementation "com.google.android.material:material:1.12.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 
-    // Gson – Backup/Restore JSON
+    // JSON - Backup/Restore
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // ViewModel & LiveData
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
+    // Lifecycle: ViewModel & LiveData
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.7.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
 
     // Fragment
     implementation "androidx.fragment:fragment-ktx:1.6.2"
 
-    // Room (Database)
+    // Room
     implementation "androidx.room:room-runtime:2.6.1"
     kapt "androidx.room:room-compiler:2.6.1"
     implementation "androidx.room:room-ktx:2.6.1"
 
-    // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:2.9.0"
-    implementation "androidx.navigation:navigation-ui-ktx:2.9.0"
+    // Navigation Component (Safe Args, Fragment, UI)
+    implementation "androidx.navigation:navigation-fragment-ktx:2.7.7"
+    implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
 
-    // WorkManager (Reminder background)
+    // WorkManager (Reminder)
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
     // Testing
