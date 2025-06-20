@@ -21,6 +21,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.serenoteapp.adapter.NoteAdapter
@@ -44,15 +45,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: NoteAdapter
     private lateinit var tvTotal: TextView
     private val categories = listOf("Semua", "Kuliah", "Pribadi", "Ide", "Umum")
+    private var currentSource: LiveData<List<Note>>? = null
 
     private val viewModel: NoteViewModel by viewModels {
         NoteViewModelFactory(NoteRepository(NoteDatabase.getDatabase(this).noteDao()))
     }
-
-    // ──────────────────────────────────────────────────────────────
-    // FIX: simpan LiveData yang sedang di‑observe agar bisa dilepas
-    // ──────────────────────────────────────────────────────────────
-    private var currentSource: LiveData<List<Note>>? = null   // FIX
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,6 +102,7 @@ class MainActivity : AppCompatActivity() {
                 val source = if (selected == "Semua") viewModel.getActiveNotes() else viewModel.getNotesByCategory(selected)
                 observeNotes(source)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
@@ -133,6 +131,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Backup disimpan: ${file.absolutePath}", Toast.LENGTH_LONG).show()
             }
         }
+
+        findViewById<Button>(R.id.btnAddNote).setOnClickListener {
+            findNavController(R.id.nav_host_fragment).navigate(R.id.action_noteListFragment_to_noteAddFragment)
+            findViewById<View>(R.id.nav_host_fragment).visibility = View.VISIBLE
+        }
     }
 
     private fun handleNoteClick(note: Note) {
@@ -156,8 +159,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Terkunci")
             .setView(input)
             .setPositiveButton("OK") { _, _ ->
-                val storedPin = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
-                    .getString("pin_code", "1234")
+                val storedPin = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getString("pin_code", "1234")
                 onResult(input.text.toString() == storedPin)
             }
             .setNegativeButton("Batal", null)
@@ -165,17 +167,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openDetail(note: Note) {
-        // TODO: Navigasi ke detail jika sudah pakai Fragment
         Toast.makeText(this, "Buka detail: ${note.title}", Toast.LENGTH_SHORT).show()
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // FIX: observasi LiveData tanpa error removeObservers
-    // ──────────────────────────────────────────────────────────────
     private fun observeNotes(src: LiveData<List<Note>>) {
-        currentSource?.removeObservers(this)  // lepaskan observer lama
-        currentSource = src                   // simpan LiveData baru
-        src.observe(this) { updateUI(it) }    // observe LiveData baru
+        currentSource?.removeObservers(this)
+        currentSource = src
+        src.observe(this) { updateUI(it) }
     }
 
     private fun updateUI(list: List<Note>) {
@@ -256,9 +254,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            // boleh tambahkan aksi lain jika perlu
-        }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onBackPressed() {
         super.onBackPressed()
