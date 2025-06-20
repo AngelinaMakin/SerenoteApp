@@ -7,11 +7,12 @@
 
     <fragment
         android:id="@+id/noteListFragment"
-        android:name="com.example.serenoteapp.ui.NoteListFragment"
+        android:name="com.example.serenoteapp.ui.fragment.NoteListFragment"
         android:label="Note List"
         tools:layout="@layout/fragment_note_list">
 
-        <action
+
+    <action
             android:id="@+id/action_noteListFragment_to_noteAddFragment"
             app:destination="@id/noteAddFragment"
             app:enterAnim="@anim/slide_in_right"
