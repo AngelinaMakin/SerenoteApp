@@ -18,12 +18,10 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
     val allNotes: LiveData<List<Note>> = _allNotes
 
     init {
-        viewModelScope.launch {
-            repo.getAllNotesFlow().collectLatest { _allNotes.postValue(it) }
-        }
+        loadAllNotes()
     }
 
-    // ✅ READ — dikonversi ke LiveData agar bisa di-observe dari Activity
+    // READ
     fun getActiveNotes(): LiveData<List<Note>> = repo.getActiveNotes().asLiveData()
     fun getNotesByCategory(category: String): LiveData<List<Note>> = repo.getNotesByCategory(category).asLiveData()
     fun searchNotes(query: String): LiveData<List<Note>> = repo.searchNotes(query).asLiveData()
@@ -35,6 +33,10 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
             updatedAt = System.currentTimeMillis()
         )
         repo.insertNote(newNote)
+    }
+
+    fun insertAll(notes: List<Note>) = viewModelScope.launch {
+        repo.insertAll(notes)
     }
 
     fun updateNote(note: Note) = viewModelScope.launch {
@@ -50,10 +52,33 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
         repo.deleteAllNotes()
     }
 
-    // GETTER
     fun getLatestNote(): Note? = _allNotes.value?.maxByOrNull { it.updatedAt }
 
-    // REMINDER
+    fun loadAllNotes() {
+        viewModelScope.launch {
+            repo.getAllNotesFlow().collectLatest {
+                _allNotes.postValue(it)
+            }
+        }
+    }
+
+    fun sortByTitle() {
+        viewModelScope.launch {
+            repo.getNotesSortedByTitle().collectLatest {
+                _allNotes.postValue(it)
+            }
+        }
+    }
+
+    fun sortByNewest() {
+        viewModelScope.launch {
+            repo.getNotesSortedByNewest().collectLatest {
+                _allNotes.postValue(it)
+            }
+        }
+    }
+
+    // Reminder
     fun scheduleReminder(context: Context, note: Note) = viewModelScope.launch {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("noteTitle", note.title)
@@ -64,17 +89,16 @@ class NoteViewModel(private val repo: NoteRepository) : ViewModel() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val triggerTime = System.currentTimeMillis() + 60 * 60 * 1000L // 1 jam
+        val triggerTime = System.currentTimeMillis() + 60 * 60 * 1000L
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }
 
-    // EXPORT
+    // Export & Restore
     fun exportNotesToTxt(context: Context) = viewModelScope.launch {
         repo.exportNotesToTxt(context)
         Toast.makeText(context, "Catatan diekspor!", Toast.LENGTH_SHORT).show()
     }
 
-    // RESTORE
     fun restoreNotes(context: Context) = viewModelScope.launch {
         try {
             repo.restoreNotes(context)

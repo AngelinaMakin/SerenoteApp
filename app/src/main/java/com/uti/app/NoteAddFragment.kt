@@ -14,6 +14,7 @@ import com.example.serenoteapp.data.NoteRepository
 import com.example.serenoteapp.databinding.FragmentNoteAddBinding
 import com.example.serenoteapp.viewmodel.NoteViewModel
 import com.example.serenoteapp.viewmodel.NoteViewModelFactory
+import com.example.serenoteapp.ui.NoteAddFragmentArgs
 
 class NoteAddFragment : Fragment() {
 
@@ -34,7 +35,7 @@ class NoteAddFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentNoteAddBinding.inflate(inflater, container, false)
 
         val noteArg = arguments?.let { NoteAddFragmentArgs.fromBundle(it).note }

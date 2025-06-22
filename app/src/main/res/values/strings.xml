@@ -8,4 +8,12 @@
     <string name="archive">Arsipkan</string>
     <string name="delete">Hapus</string>
     <string name="reminder">Pengingat</string>
+    <string name="pin">Sematkan</string>
+
+    <!-- ✅ Tambahkan ini -->
+    <string-array name="spinner_items">
+        <item>Semua</item>
+        <item>Judul (A-Z)</item>
+        <item>Terbaru</item>
+    </string-array>
 </resources>
