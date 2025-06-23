@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
@@ -21,23 +20,30 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_DARK = "dark_mode"
     }
 
+    // Permission launcher for notification (Android 13+)
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            // Optional: handle permission result
+        }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply saved dark mode before view is created
         applySavedDarkMode()
         super.onCreate(savedInstanceState)
+
+        // Set the layout which only contains NavHostFragment
         setContentView(R.layout.activity_main)
+
+        // Setup notification channel and request permissions if needed
         createNotificationChannelIfNeeded()
         requestNotifPermissionIfNeeded()
     }
 
     private fun applySavedDarkMode() {
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val isDarkMode = prefs.getBoolean(KEY_DARK, false)
         AppCompatDelegate.setDefaultNightMode(
-            if (getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                    .getBoolean(KEY_DARK, false)
-            ) AppCompatDelegate.MODE_NIGHT_YES
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
         )
     }
@@ -45,8 +51,7 @@ class MainActivity : AppCompatActivity() {
     private fun createNotificationChannelIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NotificationManager::class.java)
-            val existing = manager.getNotificationChannel(CHANNEL_ID)
-            if (existing == null) {
+            if (manager.getNotificationChannel(CHANNEL_ID) == null) {
                 val channel = NotificationChannel(
                     CHANNEL_ID,
                     "Note Reminder",
