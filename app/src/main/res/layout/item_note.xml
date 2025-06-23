@@ -6,7 +6,8 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardUseCompatPadding="true">
+    app:strokeWidth="1dp"
+    app:strokeColor="@android:color/darker_gray">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -60,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="12 Jun 2025, 08:00"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textColor="@android:color/darker_gray"
                 android:textSize="12sp" />
 
             <TextView
@@ -69,85 +71,79 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Diupdate: 10 Jun 2025"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textColor="@android:color/darker_gray"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Ikon pin status -->
-        <ImageView
-            android:id="@+id/ivPin"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/pinned"
-            android:src="@drawable/ic_push_pin"
-            android:visibility="gone" />
-
-        <!-- Tombol Pin -->
-        <ImageButton
-            android:id="@+id/btnPin"
-            style="?attr/borderlessButtonStyle"
+        <!-- Aksi dan ikon -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/pin"
-            android:padding="8dp"
-            android:src="@drawable/ic_push_pin" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-        <!-- Tombol Export -->
-        <ImageButton
-            android:id="@+id/btnExport"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/export"
-            android:padding="8dp"
-            android:src="@drawable/ic_download" />
+            <ImageView
+                android:id="@+id/ivPin"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/pinned"
+                android:src="@drawable/ic_push_pin"
+                android:visibility="gone" />
 
-        <!-- Tombol Share -->
-        <ImageButton
-            android:id="@+id/btnShare"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/share"
-            android:padding="8dp"
-            android:src="@drawable/ic_share" />
+            <ImageButton
+                android:id="@+id/btnPin"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/pin"
+                android:padding="8dp"
+                android:src="@drawable/ic_push_pin" />
 
-        <!-- Tombol Archive -->
-        <ImageButton
-            android:id="@+id/btnArchive"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/archive"
-            android:padding="8dp"
-            android:src="@drawable/ic_archive" />
+            <ImageButton
+                android:id="@+id/btnExport"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/export"
+                android:padding="8dp"
+                android:src="@drawable/ic_download" />
 
-        <!-- Tombol Delete -->
-        <ImageButton
-            android:id="@+id/btnDelete"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/delete"
-            android:padding="8dp"
-            android:src="@drawable/ic_delete" />
+            <ImageButton
+                android:id="@+id/btnShare"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/share"
+                android:padding="8dp"
+                android:src="@drawable/ic_share" />
 
-        <!-- Tombol Reminder -->
-        <ImageButton
-            android:id="@+id/btnReminder"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/reminder"
-            android:padding="8dp"
-            android:src="@drawable/ic_alarm" />
+            <ImageButton
+                android:id="@+id/btnArchive"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/archive"
+                android:padding="8dp"
+                android:src="@drawable/ic_archive" />
+
+            <ImageButton
+                android:id="@+id/btnDelete"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/delete"
+                android:padding="8dp"
+                android:src="@drawable/ic_delete" />
+
+            <ImageButton
+                android:id="@+id/btnReminder"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/reminder"
+                android:padding="8dp"
+                android:src="@drawable/ic_alarm" />
+        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
